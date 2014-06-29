@@ -8,6 +8,9 @@
 int convertFileToString(const char * input_fileName, char ** output_stringPointer);
 int printHexArray(const char * array, int startIndex, int length);
 
+/* Test Function */
+void test_valueTypeDescription();
+
 /* Main */
 int main() {
     const char * fileName = "sample.json";
@@ -20,6 +23,8 @@ int main() {
 
     printf("%s (%lu) = %s\n", fileName, strlen(string), string);
     free(string);
+
+    test_valueTypeDescription();
 
     return EXIT_SUCCESS;
 }
@@ -95,4 +100,14 @@ int printHexArray(const char * array, int startIndex, int length) {
     puts("");
 
     return 0;
+}
+
+void test_valueTypeDescription() {
+    puts("Test json type description");
+    puts("================================================================================");
+    int i;
+    for (i = -1; i <= 7; i++) {
+        printf("%s\n", json_valueTypeDescription(i));
+    }
+    puts("================================================================================\n");
 }
