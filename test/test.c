@@ -6,6 +6,7 @@
 
 /* Utility Function */
 int convertFileToString(const char * input_fileName, char ** output_stringPointer);
+int printHexArray(const char * array, int startIndex, int length);
 
 /* Main */
 int main() {
@@ -24,6 +25,8 @@ int main() {
 }
 
 int convertFileToString(const char * input_fileName, char ** output_stringPointer) {
+    const int DEBUG = 0;
+
     // 1. check input file
     if (input_fileName == NULL || strlen(input_fileName) == 0) {
         puts("File Name should not be NULL or empty\n");
@@ -51,6 +54,12 @@ int convertFileToString(const char * input_fileName, char ** output_stringPointe
         return -1;
     }
 
+    if (DEBUG) {
+        printf("convertFileToString: alloc str byte array (len + 1 = %d)\n", len + 1);
+        printHexArray(str, 0, len + 1);
+        puts("");
+    }
+
     rewind(fp); // trun to starting point
 
     // 5. store content to str
@@ -63,7 +72,27 @@ int convertFileToString(const char * input_fileName, char ** output_stringPointe
     // close fp
     fclose(fp);
 
+    if (DEBUG) {
+        printf("convertFileToString: set str byte array (len + 1 = %d)\n", len + 1);
+        printHexArray(str, 0, len + 1);
+        puts("");
+    }
+
     // 6. set output
     *output_stringPointer = str;
+    return 0;
+}
+
+int printHexArray(const char * array, int startIndex, int length) {
+    int i;
+    for (i = startIndex; i < startIndex + length; i++) {
+        printf("0x%02x ", array[i]);
+
+        // wrap line
+        if (i % 10 == 9)   puts("");
+        if (i % 100 == 99) puts("");
+    }
+    puts("");
+
     return 0;
 }
