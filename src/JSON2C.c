@@ -88,6 +88,143 @@ int json_getValue(const char * input_string, const int input_startIndex, int * o
     return -1;
 }
 
+// Get array value by position with value start & end index and JSON type.
+int json_getArrayValueByPosition(const char * input_string, const int input_startIndex, const int input_position, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType) {
+    const char DEBUG = 0;
+
+    // check input arguments
+    if (input_string == NULL) {
+        printf("json_getArrayValueByPosition: input_string should not be NULL\n");
+        return -1;
+    }
+
+    if (input_startIndex < 0) {
+        printf("json_getArrayValueByPosition: input_startIndex (%d) should not be negative\n", input_startIndex);
+        return -1;
+    }
+
+    if (input_position < 0) {
+        printf("json_getArrayValueByPosition: input_position (%d) should not be negative\n", input_position);
+        return -1;
+    }
+
+    if (output_valueStartIndex == NULL) {
+        printf("json_getArrayValueByPosition: output_valueStartIndex should not be NULL\n");
+        return -1;
+    }
+
+    if (output_valueEndIndex == NULL) {
+        printf("json_getArrayValueByPosition: output_valueEndIndex should not be NULL\n");
+        return -1;
+    }
+
+    if (output_valueJsonType == NULL) {
+        printf("json_getArrayValueByPosition: output_valueJsonType should not be NULL\n");
+        return -1;
+    }
+
+    // set to default
+    *output_valueStartIndex = -1;
+    *output_valueEndIndex = -1;
+    *output_valueJsonType = -1;
+
+    int i = input_startIndex;
+
+    // check the first character
+    if (input_string[i] != '[') {
+        if (DEBUG) {
+            printf("json_getArrayValueByPosition: invalid character at %d (%c, 0x%02x), it should be left square bracket\n", i, input_string[i], input_string[i]);
+        }
+        return -1;
+    }
+    i++;
+
+    // filter the blank, util find the next character
+    while (!isprint(input_string[i]) || isspace(input_string[i])) {
+        if (input_string[i] == '\0') {
+            goto invalid_character;
+        }
+        i++;
+    }
+
+    // check right square bracket
+    if (input_string[i] == ']') {
+        goto end_of_array;
+    }
+
+    int position = -1;
+    for (;;) {
+
+        // 1-1. check the value
+        int endIndex, jsonType;
+        if (json_getValue(input_string, i, &endIndex, &jsonType) == -1) {
+            if (DEBUG) {
+                printf("json_getArrayValueByPosition: invalid JSON Value at %d (%c)\n", i, input_string[i]);
+            }
+            return -1;
+        }
+
+        // 1-2. check the position
+        if (input_position == ++position) {
+            // the value is found
+            *output_valueStartIndex = i;
+            *output_valueEndIndex = endIndex;
+            *output_valueJsonType = jsonType;
+            return 0;
+        }
+
+        // 1-3. move to the index behind the value
+        i = endIndex + 1;
+
+
+        // filter the blank, util find the next character
+        while (!isprint(input_string[i]) || isspace(input_string[i])) {
+            if (input_string[i] == '\0') {
+                goto invalid_character;
+            }
+            i++;
+        }
+
+
+        // 2. check the character after the VALUE
+        switch (input_string[i]) {
+            // 2-1. check right square bracket
+            case ']':
+                goto end_of_array;
+
+            // 2-2. find comma behind the value
+            case ',':
+                i++;
+                break;
+
+            // 2-3. is not right square bracket or comma
+            default:
+                goto invalid_character;
+        }
+
+
+        // filter the blank, util find the next character
+        while (!isprint(input_string[i]) || isspace(input_string[i])) {
+            if (input_string[i] == '\0') {
+                goto invalid_character;
+            }
+            i++;
+        }
+    }
+
+invalid_character:
+    if (DEBUG) {
+        printf("json_getArrayValueByPosition: invalid character at %d (%c 0x%02x)\n", i, input_string[i], input_string[i]);
+    }
+    return -1;
+
+end_of_array:
+    if (DEBUG) {
+        printf("json_getArrayValueByPosition: it's the end of the array (%d), the Value Array[%d] is not found\n", i, input_position);
+    }
+    return -1;
+}
+
 // Get the number with end index
 int json_getNumber(const char * input_string, const int input_startIndex, int * output_endIndex) {
     const char DEBUG = 0;

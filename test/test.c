@@ -15,6 +15,7 @@ void test_getNumber();
 void test_getBoolean();
 void test_getNull();
 void test_getValue();
+void test_getArrayValueByPosition();
 
 /* Main */
 int main() {
@@ -34,6 +35,7 @@ int main() {
     test_getBoolean();
     test_getNull();
     test_getValue();
+    test_getArrayValueByPosition();
 
     free(string);
     return EXIT_SUCCESS;
@@ -396,6 +398,45 @@ void test_getValue() {
         } else {
             printf("%d. %s is not JSON value\n\n", i + 1, str[i]);
         }
+    }
+
+    puts("================================================================================\n");
+}
+
+void test_getArrayValueByPosition() {
+    puts("Test json_getArrayValueByPosition");
+    puts("================================================================================");
+
+    char * str =
+    "abc[\n"
+    "    \"Hello\\\"\",		\n"
+    "    { object }    ,\n"
+    "    [ array ],\n"
+    "    [12345[12345[12345]]]\n,"
+    "    \"\\\"\\\\\\/\\b\\f\\n\\r\\t\",\n"
+    "    10.5E+13,\n"
+    "    true,\n"
+    "    false, \n"
+    "    null\n"
+    "]]]]";
+
+    printf("Array (%lu) = %s\n\n", strlen(str), str);
+
+    int i, valueStartIndex, valueEndIndex, valueJsonType;
+    for (i = 0; i < 10; i++) {
+
+        if (json_getArrayValueByPosition(str, 3, i, &valueStartIndex, &valueEndIndex, &valueJsonType) == -1) {
+            printf("Array[%d] is not found\n\n", i);
+            continue;
+        }
+
+        // value is found
+        printf("Array[%d] = ", i);
+        int j;
+        for (j = valueStartIndex; j <= valueEndIndex; j++) {
+            printf("%c", str[j]);
+        }
+        printf(" (%s)\n\n", json_valueTypeDescription(valueJsonType));
     }
 
     puts("================================================================================\n");

@@ -46,6 +46,28 @@ const char * json_valueTypeDescription(JsonValueType type);
 int json_getValue(const char * input_string, const int input_startIndex, int * output_endIndex, int * output_jsonType);
 
 /*
+ * Function: json_getArrayValueByPosition
+ *
+ * Get array value by position with value start & end index and JSON type.
+ *
+ * Parameters:
+ *  input_string - the character pointer.
+ *  input_startIndex - the start index of the string.
+ *  input_position - the value position in array.
+ *  output_valueStartIndex - the integer pointer.
+ *   -1 - failure
+ *  output_valueEndIndex - the integer pointer.
+ *   -1 - failure
+ *  output_valueJsonType - the integer pointer.
+ *   -1 - failure
+ *
+ * Returns:
+ *   0 - success
+ *  -1 - failure
+ */
+int json_getArrayValueByPosition(const char * input_string, const int input_startIndex, const int input_position, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType);
+
+/*
  * Function: json_getNumber
  *
  * Get the number with end index.
