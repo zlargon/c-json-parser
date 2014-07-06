@@ -19,19 +19,10 @@ void test_getArrayValueByPosition();
 void test_getNextCharacterWithoutBlank();
 void test_util_stringComare();
 void test_getKeyValuePair();
+void test_getObjectValueByKey();
 
 /* Main */
 int main() {
-    const char * fileName = "sample.json";
-
-    char * string; // need to be free
-    if (convertFileToString(fileName, &string) != 0) {
-        printf("convert file '%s' to string failure\n", fileName);
-        return EXIT_SUCCESS;
-    }
-
-    printf("%s (%lu) = %s\n", fileName, strlen(string), string);
-
     test_valueTypeDescription();
     test_getString();
     test_getNumber();
@@ -42,8 +33,7 @@ int main() {
     test_getNextCharacterWithoutBlank();
     test_util_stringComare();
     test_getKeyValuePair();
-
-    free(string);
+    test_getObjectValueByKey();
     return EXIT_SUCCESS;
 }
 
@@ -591,5 +581,47 @@ void test_getKeyValuePair() {
         puts("--------------------------------------------------------------------------------");
     }
 
+    puts("================================================================================\n");
+}
+
+void test_getObjectValueByKey() {
+    puts("Test json_getObjectValueByKey");
+    puts("================================================================================");
+
+    const char * fileName = "sample.json";
+
+    char * string; // need to be free
+    if (convertFileToString(fileName, &string) != 0) {
+        printf("convert file '%s' to string failure\n", fileName);
+        return;
+    }
+
+    printf("%s (%lu) = %s\n", fileName, strlen(string), string);
+
+    // keys
+    char * keys[100] = {
+        "\"orderID\"",
+        "\"shopperName\"",
+        "\"shopperEmail\"",
+        "\"contents\"",
+        "\"orderCompleted\""
+    };
+
+    int i;
+    for (i = 0; keys[i] != NULL; i++) {
+
+        int valueStartIndex, valueEndIndex, valueJsonType;
+        if (json_getObjectValueByKey(string, 0, keys[i], 0, strlen(keys[i]) - 1, &valueStartIndex, &valueEndIndex, &valueJsonType) == -1) {
+            printf("%d. %s is not found\n\n", i + 1, keys[i]);
+            continue;
+        }
+
+        // value is found
+        printf("%d. %s = ", i + 1, keys[i]);
+        utils_printSubstring(string, valueStartIndex, valueEndIndex);
+        printf(" (%s)\n\n", json_valueTypeDescription(valueJsonType));
+    }
+
+    free(string);
     puts("================================================================================\n");
 }
