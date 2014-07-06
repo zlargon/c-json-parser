@@ -2,6 +2,11 @@
 #include <ctype.h>
 #include "JSON2C.h"
 
+// Internal Function
+int json_getShallowObject(const char * input_string, const int input_startIndex, int * output_endIndex);
+int json_getShallowArray(const char * input_string, const int input_startIndex, int * output_endIndex);
+
+
 // JSON value type description
 const char * json_valueTypeDescription(JsonValueType type) {
     switch (type) {
@@ -66,55 +71,15 @@ int json_getValue(const char * input_string, const int input_startIndex, int * o
     }
 
     // 5. Shallow Object: only find the left and right curly bracket
-    if (input_string[input_startIndex] == '{') {
-        int stack = 1;
-
-        int i;
-        for (i = input_startIndex + 1; input_string[i] != '\0'; i++) {
-
-            // left curly bracket
-            if (input_string[i] == '{') {
-                stack++;
-                continue;
-            }
-
-            // right curly bracket
-            if (input_string[i] == '}') {
-                stack--;
-
-                if (stack == 0) {
-                    *output_endIndex = i;
-                    *output_jsonType = JSON_VALUE_TYPE_OBJECT;
-                    return 0;
-                }
-            }
-        }
+    if (json_getShallowObject(input_string, input_startIndex, output_endIndex) == 0) {
+        *output_jsonType = JSON_VALUE_TYPE_OBJECT;
+        return 0;
     }
 
     // 6. Shallow Array: only find the left and right square bracket
-    if (input_string[input_startIndex] == '[') {
-        int stack = 1;
-
-        int i;
-        for (i = input_startIndex + 1; input_string[i] != '\0'; i++) {
-
-            // left square bracket
-            if (input_string[i] == '[') {
-                stack++;
-                continue;
-            }
-
-            // right square bracket
-            if (input_string[i] == ']') {
-                stack--;
-
-                if (stack == 0) {
-                    *output_endIndex = i;
-                    *output_jsonType = JSON_VALUE_TYPE_ARRAY;
-                    return 0;
-                }
-            }
-        }
+    if (json_getShallowArray(input_string, input_startIndex, output_endIndex) == 0) {
+        *output_jsonType = JSON_VALUE_TYPE_ARRAY;
+        return 0;
     }
 
     // get value failure
@@ -391,4 +356,96 @@ int json_getNull(const char * input_string, const int input_startIndex, int * ou
     // success
     *output_endIndex = input_startIndex + i - 1;
     return 0;
+}
+
+
+
+/* Internal Function */
+
+int json_getShallowObject(const char * input_string, const int input_startIndex, int * output_endIndex) {
+    // check input arguments
+    if (input_string == NULL) {
+        printf("json_getShallowObject: input_string should not be NULL\n");
+        return -1;
+    }
+
+    if (input_startIndex < 0) {
+        printf("json_getShallowObject: input_startIndex (%d) should not be negative\n", input_startIndex);
+        return -1;
+    }
+
+    if (output_endIndex == NULL) {
+        printf("json_getShallowObject: output_endIndex should not be NULL\n");
+        return -1;
+    }
+
+    if (input_string[input_startIndex] == '{') {
+
+        int i, stack = 1;
+        for (i = input_startIndex + 1; input_string[i] != '\0'; i++) {
+
+            // left curly bracket
+            if (input_string[i] == '{') {
+                stack++;
+                continue;
+            }
+
+            // right curly bracket
+            if (input_string[i] == '}') {
+                stack--;
+
+                if (stack == 0) {
+                    *output_endIndex = i;
+                    return 0;
+                }
+            }
+        }
+    }
+
+    *output_endIndex = -1;
+    return -1;
+}
+
+int json_getShallowArray(const char * input_string, const int input_startIndex, int * output_endIndex) {
+    // check input arguments
+    if (input_string == NULL) {
+        printf("json_getShallowArray: input_string should not be NULL\n");
+        return -1;
+    }
+
+    if (input_startIndex < 0) {
+        printf("json_getShallowArray: input_startIndex (%d) should not be negative\n", input_startIndex);
+        return -1;
+    }
+
+    if (output_endIndex == NULL) {
+        printf("json_getShallowArray: output_endIndex should not be NULL\n");
+        return -1;
+    }
+
+    if (input_string[input_startIndex] == '[') {
+
+        int i, stack = 1;
+        for (i = input_startIndex + 1; input_string[i] != '\0'; i++) {
+
+            // left square bracket
+            if (input_string[i] == '[') {
+                stack++;
+                continue;
+            }
+
+            // right square bracket
+            if (input_string[i] == ']') {
+                stack--;
+
+                if (stack == 0) {
+                    *output_endIndex = i;
+                    return 0;
+                }
+            }
+        }
+    }
+
+    *output_endIndex = -1;
+    return -1;
 }
