@@ -17,6 +17,104 @@ const char * json_valueTypeDescription(JsonValueType type) {
     }
 }
 
+// Get the number with end index
+int json_getNumber(const char * input_string, const int input_startIndex, int * output_endIndex) {
+    const char DEBUG = 0;
+
+    // check input arguments
+    if (input_string == NULL) {
+        printf("json_getNumber: input_string should not be NULL\n");
+        return -1;
+    }
+
+    if (input_startIndex < 0) {
+        printf("json_getNumber: input_startIndex (%d) should not be negative\n", input_startIndex);
+        return -1;
+    }
+
+    if (output_endIndex == NULL) {
+        printf("json_getNumber: output_endIndex should not be NULL\n");
+        return -1;
+    }
+
+    int i = input_startIndex;
+    *output_endIndex = -1; // set default to -1
+
+    // check minus sign
+    if (input_string[i] == '-') {
+        i++;
+    }
+
+integer_part:
+    // check integer part first digist
+    if (input_string[i] == '0') {
+        i++;
+        goto fractional_part;
+    }
+
+    if (!isdigit(input_string[i])) {
+        if (DEBUG) {
+            printf("json_getNumber: the character at %d (%c 0x%02x) should be a digist\n", i, input_string[i], input_string[i]);
+        }
+        return -1;
+    }
+
+    // check the other characters behind the first one
+    while (isdigit(input_string[++i]));
+
+fractional_part:
+    // check '.'
+    if (input_string[i] != '.') {
+        goto exponent_part;
+    }
+
+    // check the first character behind the '.'
+    if (!isdigit(input_string[i + 1])) {
+        goto exponent_part;
+    }
+
+    while (isdigit(input_string[++i]));
+
+exponent_part:
+    // 1. check e / E
+    if (input_string[i] != 'e' && input_string[i] != 'E') {
+        *output_endIndex = i - 1;
+        return 0;
+    }
+
+    // 2. check + / -
+    if (input_string[i + 1] == '+' || input_string[i + 1] == '-') {
+        i++;
+    }
+
+    // 3. check the first character behind the e, E, +, -
+    if (!isdigit(input_string[i + 1])) {
+
+        if (input_string[i] == 'e' || input_string[i] == 'E') {
+            *output_endIndex = i - 1;
+            return 0;
+        }
+
+        if (input_string[i] == '+' || input_string[i] == '-') {
+            *output_endIndex = i - 2;
+            return 0;
+        }
+
+        printf("[BUG] json_getNumber: please report the log to project owner, thanks.\n");
+        puts("================================================================================");
+        printf("input_string = %s\n", input_string);
+        printf("input_startIndex = %d\n", input_startIndex);
+        puts("================================================================================\n");
+        return -1;
+    }
+
+    while (isdigit(input_string[++i]));
+
+    // success
+    *output_endIndex = i - 1;
+    return 0;
+}
+
 // Get the string with end index
 int json_getString(const char * input_string, const int input_startIndex, int * output_endIndex) {
     const char DEBUG = 0;

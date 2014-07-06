@@ -11,6 +11,7 @@ int printHexArray(const char * array, int startIndex, int length);
 /* Test Function */
 void test_valueTypeDescription();
 void test_getString();
+void test_getNumber();
 
 /* Main */
 int main() {
@@ -26,6 +27,7 @@ int main() {
 
     test_valueTypeDescription();
     test_getString();
+    test_getNumber();
 
     free(string);
     return EXIT_SUCCESS;
@@ -161,6 +163,65 @@ void test_getString() {
         printf("%s [%d..%d] is string\n\n", s, startIndex, endIndex);
     } else {
         printf("%s [%d..] is not string\n\n", s, startIndex);
+    }
+
+    puts("================================================================================\n");
+}
+
+void test_getNumber() {
+    puts("Test json_getNumber");
+    puts("================================================================================");
+
+    char * str[100] = {
+        "--123",
+        "abc",
+        "123\n",
+        "456",
+        "-",
+        "-abc",
+        "-123",
+        "0",
+        "-0",
+        "0.",
+        ".",
+        "0.0",
+        "1.2.3",
+        "-10.123",
+        "10.e",
+        "10..",
+        "e",
+        "-E",
+        "-0e12",
+        "10.5e00abc",
+        "10.5E+13",
+        "8.5E-15",
+        "8e",
+        "123E-",
+        "456E+",
+        "9.e",
+        "9.e99",
+        "0ee",
+        "",
+        "0.0eabc",
+        "0.0e-abc"
+    };
+
+    int i, startIndex, endIndex;
+    for (i = 0; str[i] != NULL; i++) {
+        startIndex = 0;
+        if (json_getNumber(str[i], startIndex, &endIndex) == 0) {
+            printf("%d. %s [%d..%d] is number\n\n", i + 1, str[i], startIndex, endIndex);
+        } else {
+            printf("%d. %s is not number\n\n", i + 1, str[i]);
+        }
+    }
+
+    char * s = str[0]; // --123
+    startIndex = 1;
+    if (json_getNumber(s, startIndex, &endIndex) == 0) {
+        printf("%s [%d..%d] is number\n\n", s, startIndex, endIndex);
+    } else {
+        printf("%s [%d..] is not number\n\n", s, startIndex);
     }
 
     puts("================================================================================\n");
