@@ -25,6 +25,27 @@ typedef enum {
 const char * json_valueTypeDescription(JsonValueType type);
 
 /*
+ * Function: json_getValue
+ *
+ * Get the value with end index and JSON type.
+ * Find JSON Object and Array in shallow
+ * (only get the left and right bracket, but do not check inside)
+ *
+ * Parameters:
+ *  input_string - the character pointer.
+ *  input_startIndex - the start index of the string.
+ *  output_endIndex - the integer pointer.
+ *   -1 - failure
+ *  output_jsonType - the integer pointer.
+ *   -1 - failure
+ *
+ * Returns:
+ *   0 - success
+ *  -1 - failure
+ */
+int json_getValue(const char * input_string, const int input_startIndex, int * output_endIndex, int * output_jsonType);
+
+/*
  * Function: json_getNumber
  *
  * Get the number with end index.

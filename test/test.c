@@ -14,6 +14,7 @@ void test_getString();
 void test_getNumber();
 void test_getBoolean();
 void test_getNull();
+void test_getValue();
 
 /* Main */
 int main() {
@@ -32,6 +33,7 @@ int main() {
     test_getNumber();
     test_getBoolean();
     test_getNull();
+    test_getValue();
 
     free(string);
     return EXIT_SUCCESS;
@@ -296,6 +298,104 @@ void test_getNull() {
         printf("%s [%d..%d] is null\n\n", s, startIndex, endIndex);
     } else {
         printf("%s [%d..] is not null\n\n", s, startIndex);
+    }
+
+    puts("================================================================================\n");
+}
+
+void test_getValue() {
+    puts("Test json_getValue");
+    puts("================================================================================");
+
+    char * str[100] = {
+        "abcnullabc",
+        "null",
+        "n",
+        "nullabc",
+        "",
+        "abcfalseabc",
+        "0ee",
+        "true",
+        "false",
+        "tabc",
+        "fabc",
+        "t",
+        "f",
+        "--123",
+        "abc",
+        "123\n",
+        "456",
+        "-",
+        "-abc",
+        "-123",
+        "0",
+        "-0",
+        "0.",
+        ".",
+        "0.0",
+        "1.2.3",
+        "-10.123",
+        "10.e",
+        "10..",
+        "e",
+        "-E",
+        "-0e12",
+        "10.5e00abc",
+        "10.5E+13",
+        "8.5E-15",
+        "8e",
+        "123E-",
+        "456E+",
+        "9.e",
+        "9.e99",
+        "0ee",
+        "0.0eabc",
+        "0.0e-abc",
+        "\"\"ab c\"",
+        "",
+        "\"abc\"",
+        "abc",
+        "\"",
+        "\"abc\"abc",
+        "\"abc\\",
+        "\"abc",
+        "\"\"abc\"",                      /*   "abc               */
+        "\"\\abc\"",                      /*   \abc               */
+        "\"/abc\"",                       /*   /abc               */
+        "\"\\/abc\"",                     /*   \/abc              */
+        "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\"", /*   \"\\\/\b\f\n\r\t   */
+        "\"abc\\u\"",
+        "\"abc\\u1\"",
+        "\"abc\\u12\"",
+        "\"abc\\u123\"",
+        "\"abc\\u1234\"",
+        "\"abc\\u1234",
+        "\"abc\\u1a34\"",
+        "\"abc\\u1A3456\"",
+        "\"abc\\u12s4\"",
+        "\"abc\\u1234\\u1234abc\"",
+        "{}",
+        "{1234567890}",
+        "{12345{12345{12345",
+        "{12345{12345{12345}}}",
+        "{12345{12345}}}}",
+        "{12345{{{12345}}}",
+        "[]",
+        "[1234567890]",
+        "[12345[12345[12345",
+        "[12345[12345[12345]]]",
+        "[12345[12345]]]]",
+        "[12345[[[12345]]]"
+    };
+
+    int i, startIndex, endIndex, jsonType;
+    for (i = 0; str[i] != NULL; i++) {
+        startIndex = 0;
+        if (json_getValue(str[i], startIndex, &endIndex, &jsonType) == 0) {
+            printf("%d. %s [%d..%d] is %s\n\n", i + 1, str[i], startIndex, endIndex, json_valueTypeDescription(jsonType));
+        } else {
+            printf("%d. %s is not JSON value\n\n", i + 1, str[i]);
+        }
     }
 
     puts("================================================================================\n");
