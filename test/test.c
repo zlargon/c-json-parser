@@ -12,6 +12,7 @@ int printHexArray(const char * array, int startIndex, int length);
 void test_valueTypeDescription();
 void test_getString();
 void test_getNumber();
+void test_getBoolean();
 
 /* Main */
 int main() {
@@ -28,6 +29,7 @@ int main() {
     test_valueTypeDescription();
     test_getString();
     test_getNumber();
+    test_getBoolean();
 
     free(string);
     return EXIT_SUCCESS;
@@ -222,6 +224,43 @@ void test_getNumber() {
         printf("%s [%d..%d] is number\n\n", s, startIndex, endIndex);
     } else {
         printf("%s [%d..] is not number\n\n", s, startIndex);
+    }
+
+    puts("================================================================================\n");
+}
+
+void test_getBoolean() {
+    puts("Test json_getBoolean");
+    puts("================================================================================");
+
+    char * str[100] = {
+        "abcfalseabc",
+        "0ee",
+        "true",
+        "false",
+        "tabc",
+        "fabc",
+        "",
+        "t",
+        "f"
+    };
+
+    int i, startIndex, endIndex;
+    for (i = 0; str[i] != NULL; i++) {
+        startIndex = 0;
+        if (json_getBoolean(str[i], startIndex, &endIndex) == 0) {
+            printf("%d. %s [%d..%d] is boolean\n\n", i + 1, str[i], startIndex, endIndex);
+        } else {
+            printf("%d. %s is not boolean\n\n", i + 1, str[i]);
+        }
+    }
+
+    char * s = str[0]; // abctrue
+    startIndex = 3;
+    if (json_getBoolean(s, startIndex, &endIndex) == 0) {
+        printf("%s [%d..%d] is boolean\n\n", s, startIndex, endIndex);
+    } else {
+        printf("%s [%d..] is not boolean\n\n", s, startIndex);
     }
 
     puts("================================================================================\n");

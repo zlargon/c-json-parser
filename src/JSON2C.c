@@ -211,3 +211,42 @@ int json_getString(const char * input_string, const int input_startIndex, int * 
         i++;
     }
 }
+
+// Get the boolean with end index.
+int json_getBoolean(const char * input_string, const int input_startIndex, int * output_endIndex) {
+    // check input arguments
+    if (input_string == NULL) {
+        printf("json_getBoolean: input_string should not be NULL\n");
+        return -1;
+    }
+
+    if (input_startIndex < 0) {
+        printf("json_getBoolean: input_startIndex (%d) should not be negative\n", input_startIndex);
+        return -1;
+    }
+
+    if (output_endIndex == NULL) {
+        printf("json_getBoolean: output_endIndex should not be NULL\n");
+        return -1;
+    }
+
+    *output_endIndex = -1; // set default to -1
+
+    // check the first character
+    const char * booleanValue = input_string[input_startIndex] == 't' ? "true" : (input_string[input_startIndex] == 'f' ? "false" : NULL);
+    if (booleanValue == NULL) {
+        return -1;
+    }
+
+    // string compare
+    int i;
+    for (i = 0; booleanValue[i] != '\0'; i++) {
+        if (booleanValue[i] != input_string[input_startIndex + i]) {
+            return -1;
+        }
+    }
+
+    // success
+    *output_endIndex = input_startIndex + i - 1;
+    return 0;
+}
