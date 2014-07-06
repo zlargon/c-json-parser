@@ -10,6 +10,7 @@ int printHexArray(const char * array, int startIndex, int length);
 
 /* Test Function */
 void test_valueTypeDescription();
+void test_getString();
 
 /* Main */
 int main() {
@@ -22,10 +23,11 @@ int main() {
     }
 
     printf("%s (%lu) = %s\n", fileName, strlen(string), string);
-    free(string);
 
     test_valueTypeDescription();
+    test_getString();
 
+    free(string);
     return EXIT_SUCCESS;
 }
 
@@ -109,5 +111,57 @@ void test_valueTypeDescription() {
     for (i = -1; i <= 7; i++) {
         printf("%s\n", json_valueTypeDescription(i));
     }
+    puts("================================================================================\n");
+}
+
+void test_getString() {
+    puts("Test json_getString");
+    puts("================================================================================");
+
+    char * str[100] = {
+        "\"\"ab c\"",
+        "",
+        "\"abc\"",
+        "abc",
+        "\"",
+        "\"abc\"abc",
+        "\"abc\\",
+        "\"abc",
+        "\"\"abc\"",                      /*   "abc               */
+        "\"\\abc\"",                      /*   \abc               */
+        "\"/abc\"",                       /*   /abc               */
+        "\"\\/abc\"",                     /*   \/abc              */
+        "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\"", /*   \"\\\/\b\f\n\r\t   */
+        "\"abc\\u\"",
+        "\"abc\\u1\"",
+        "\"abc\\u12\"",
+        "\"abc\\u123\"",
+        "\"abc\\u1234\"",
+        "\"abc\\u1234",
+        "\"abc\\u1a34\"",
+        "\"abc\\u1A3456\"",
+        "\"abc\\u12s4\"",
+        "\"abc\\u1234\\u1234abc\""
+    };
+
+    int i, startIndex, endIndex;
+    for (i = 0; str[i] != NULL; i++) {
+        startIndex = 0;
+        if (json_getString(str[i], startIndex, &endIndex) == 0) {
+            printf("%d. %s [%d..%d] is string\n\n", i + 1, str[i], startIndex, endIndex);
+        } else {
+            printf("%d. %s is not string\n\n", i + 1, str[i]);
+        }
+    }
+    puts("");
+
+    char * s = str[0]; // ""ab c"
+    startIndex = 1;
+    if (json_getString(s, startIndex, &endIndex) == 0) {
+        printf("%s [%d..%d] is string\n\n", s, startIndex, endIndex);
+    } else {
+        printf("%s [%d..] is not string\n\n", s, startIndex);
+    }
+
     puts("================================================================================\n");
 }

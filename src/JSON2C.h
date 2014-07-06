@@ -24,4 +24,21 @@ typedef enum {
  */
 const char * json_valueTypeDescription(JsonValueType type);
 
+/*
+ * Function: json_getString
+ *
+ * Get the string with end index.
+ *
+ * Parameters:
+ *  input_string - the character pointer.
+ *  input_startIndex - the start index of the string.
+ *  output_endIndex - the integer pointer.
+ *   -1 - failure
+ *
+ * Returns:
+ *   0 - success
+ *  -1 - failure
+ */
+int json_getString(const char * input_string, const int input_startIndex, int * output_endIndex);
+
 #endif
