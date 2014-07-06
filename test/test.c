@@ -16,6 +16,7 @@ void test_getBoolean();
 void test_getNull();
 void test_getValue();
 void test_getArrayValueByPosition();
+void test_getNextCharacterWithoutBlank();
 
 /* Main */
 int main() {
@@ -36,6 +37,7 @@ int main() {
     test_getNull();
     test_getValue();
     test_getArrayValueByPosition();
+    test_getNextCharacterWithoutBlank();
 
     free(string);
     return EXIT_SUCCESS;
@@ -437,6 +439,37 @@ void test_getArrayValueByPosition() {
             printf("%c", str[j]);
         }
         printf(" (%s)\n\n", json_valueTypeDescription(valueJsonType));
+    }
+
+    puts("================================================================================\n");
+}
+
+void test_getNextCharacterWithoutBlank() {
+    puts("Test json_getNextCharacterWithoutBlank");
+    puts("================================================================================");
+    puts("    0123456789 123456789 123456789\n");
+
+    char * str[100] = {
+        "        a         b",
+        "c       d     ",
+        "abc",
+        "a    b   bcd   "
+    };
+
+    int i;
+    for (i = 0; str[i] != NULL; i++) {
+
+        printf("%2d. %s\n\n", i + 1, str[i]);
+
+        int j = 0;
+        for (;;) {
+            if (json_getNextCharacterWithoutBlank(str[i], &j) == -1) {
+                break;
+            }
+            printf("    str[%d] = %c\n", j, str[i][j]);
+            j++;
+        }
+        puts("");
     }
 
     puts("================================================================================\n");

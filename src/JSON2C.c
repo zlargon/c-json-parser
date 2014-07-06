@@ -5,6 +5,7 @@
 // Internal Function
 int json_getShallowObject(const char * input_string, const int input_startIndex, int * output_endIndex);
 int json_getShallowArray(const char * input_string, const int input_startIndex, int * output_endIndex);
+int json_getNextCharacterWithoutBlank(const char * input_string, int * index);
 
 
 // JSON value type description
@@ -140,11 +141,8 @@ int json_getArrayValueByPosition(const char * input_string, const int input_star
     i++;
 
     // filter the blank, util find the next character
-    while (!isprint(input_string[i]) || isspace(input_string[i])) {
-        if (input_string[i] == '\0') {
-            goto invalid_character;
-        }
-        i++;
+    if (json_getNextCharacterWithoutBlank(input_string, &i) == -1) {
+        goto invalid_character;
     }
 
     // check right square bracket
@@ -178,13 +176,9 @@ int json_getArrayValueByPosition(const char * input_string, const int input_star
 
 
         // filter the blank, util find the next character
-        while (!isprint(input_string[i]) || isspace(input_string[i])) {
-            if (input_string[i] == '\0') {
-                goto invalid_character;
-            }
-            i++;
+        if (json_getNextCharacterWithoutBlank(input_string, &i) == -1) {
+            goto invalid_character;
         }
-
 
         // 2. check the character after the VALUE
         switch (input_string[i]) {
@@ -202,13 +196,9 @@ int json_getArrayValueByPosition(const char * input_string, const int input_star
                 goto invalid_character;
         }
 
-
         // filter the blank, util find the next character
-        while (!isprint(input_string[i]) || isspace(input_string[i])) {
-            if (input_string[i] == '\0') {
-                goto invalid_character;
-            }
-            i++;
+        if (json_getNextCharacterWithoutBlank(input_string, &i) == -1) {
+            goto invalid_character;
         }
     }
 
@@ -585,4 +575,32 @@ int json_getShallowArray(const char * input_string, const int input_startIndex, 
 
     *output_endIndex = -1;
     return -1;
+}
+
+int json_getNextCharacterWithoutBlank(const char * input_string, int * index) {
+    // check arguments
+    if (input_string == NULL) {
+        printf("%s: input_string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (index == NULL) {
+        printf("%s: index should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (*index < 0) {
+        printf("%s: *index (%d) should not be negative\n", __func__, *index);
+        return -1;
+    }
+
+    while (!isprint(input_string[*index]) || isspace(input_string[*index])) {
+        if (input_string[*index] == '\0') {
+            // it's the end of the string
+            return -1;
+        }
+        (*index)++;
+    }
+
+    return 0;
 }
