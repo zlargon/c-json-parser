@@ -13,6 +13,7 @@ void test_valueTypeDescription();
 void test_getString();
 void test_getNumber();
 void test_getBoolean();
+void test_getNull();
 
 /* Main */
 int main() {
@@ -30,6 +31,7 @@ int main() {
     test_getString();
     test_getNumber();
     test_getBoolean();
+    test_getNull();
 
     free(string);
     return EXIT_SUCCESS;
@@ -261,6 +263,39 @@ void test_getBoolean() {
         printf("%s [%d..%d] is boolean\n\n", s, startIndex, endIndex);
     } else {
         printf("%s [%d..] is not boolean\n\n", s, startIndex);
+    }
+
+    puts("================================================================================\n");
+}
+
+void test_getNull() {
+    puts("Test json_getNull");
+    puts("================================================================================");
+
+    char * str[100] = {
+        "abcnullabc",
+        "null",
+        "n",
+        "nullabc",
+        ""
+    };
+
+    int i, startIndex, endIndex;
+    for (i = 0; str[i] != NULL; i++) {
+        startIndex = 0;
+        if (json_getNull(str[i], startIndex, &endIndex) == 0) {
+            printf("%d. %s [%d..%d] is null\n\n", i + 1, str[i], startIndex, endIndex);
+        } else {
+            printf("%d. %s is not null\n\n", i + 1, str[i]);
+        }
+    }
+
+    char * s = str[0]; // abctrue
+    startIndex = 3;
+    if (json_getNull(s, startIndex, &endIndex) == 0) {
+        printf("%s [%d..%d] is null\n\n", s, startIndex, endIndex);
+    } else {
+        printf("%s [%d..] is not null\n\n", s, startIndex);
     }
 
     puts("================================================================================\n");
