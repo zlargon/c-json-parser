@@ -18,6 +18,7 @@ void test_getValue();
 void test_getArrayValueByPosition();
 void test_getNextCharacterWithoutBlank();
 void test_util_stringComare();
+void test_getKeyValuePair();
 
 /* Main */
 int main() {
@@ -40,6 +41,7 @@ int main() {
     test_getArrayValueByPosition();
     test_getNextCharacterWithoutBlank();
     test_util_stringComare();
+    test_getKeyValuePair();
 
     free(string);
     return EXIT_SUCCESS;
@@ -549,5 +551,45 @@ void test_util_stringComare() {
     printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
     utils_printSubstring(s2, s2_startIndex, s2_endIndex);
     printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+
+    puts("================================================================================\n");
+}
+
+void test_getKeyValuePair() {
+    puts("Test json_getKeyValuePair");
+    puts("================================================================================");
+    puts("    0123456789 123456789 123456789\n");
+
+    char * str[100] = {
+        "\"name\"   :   \"Leon\"",
+        "   \"age\"  :  25  ",
+        "   \"sex\"    :   \"male\" ",
+        "\"company\":\"gemtek\"",
+        "\"obj\":   {obj}",
+        "\"array\":[array]  ",
+        "array:[]",
+        "obj:{}",
+        "\"Bool\"   \n:   \ntrue",
+        "\t\"Bool\"   \t:   false",
+        "\"Null\"  :  null"
+    };
+
+    int i, keyStartIndex, keyEndIndex, valueStartIndex, valueEndIndex, valueJsonType;
+    for (i = 0; str[i] != NULL; i++) {
+        if (json_getKeyValuePair(str[i], 0, &keyStartIndex, &keyEndIndex, &valueStartIndex, &valueEndIndex, &valueJsonType) == -1) {
+            printf("%2d. %s, get key value pair failure\n\n", i + 1, str[i]);
+            puts("--------------------------------------------------------------------------------");
+            continue;
+        }
+
+        printf("%2d. %s\n\n      Key = ", i + 1, str[i]);
+        utils_printSubstring(str[i], keyStartIndex, keyEndIndex);
+
+        printf(" [%d..%d]\n    Value = ", keyStartIndex, keyEndIndex);
+        utils_printSubstring(str[i], valueStartIndex, valueEndIndex);
+        printf(" [%d..%d] (%s)\n\n", valueStartIndex, valueEndIndex, json_valueTypeDescription(valueJsonType));
+        puts("--------------------------------------------------------------------------------");
+    }
+
     puts("================================================================================\n");
 }
