@@ -7,6 +7,7 @@ int json_getShallowObject(const char * input_string, const int input_startIndex,
 int json_getShallowArray(const char * input_string, const int input_startIndex, int * output_endIndex);
 int json_getNextCharacterWithoutBlank(const char * input_string, int * index);
 int json_getKeyValuePair(const char * input_string, const int input_startIndex, int * output_keyStartIndex, int * output_keyEndIndex, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType);
+int json_getKey(const char * input_string, const int input_startIndex, int * output_keyStartIndex, int * output_keyEndIndex, int * output_keyJsonType);
 
 // Utility Function
 int utils_printSubstring(const char * string, const int startIndex, const int endIndex);
@@ -925,5 +926,83 @@ int json_getKeyValuePair(const char * input_string, const int input_startIndex, 
     *output_valueStartIndex = valueStartIndex;
     *output_valueEndIndex   = valueEndIndex;
     *output_valueJsonType   = valueJsonType;
+    return 0;
+}
+
+int json_getKey(const char * input_string, const int input_startIndex, int * output_keyStartIndex, int * output_keyEndIndex, int * output_keyJsonType) {
+    const char DEBUG = 0;
+
+    // check arguments
+    if (input_string == NULL) {
+        printf("%s: input_string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_startIndex < 0) {
+        printf("%s: input_startIndex (%d) should not be negative\n", __func__, input_startIndex);
+        return -1;
+    }
+
+    if (output_keyStartIndex == NULL) {
+        printf("%s: output_keyStartIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_keyEndIndex == NULL) {
+        printf("%s: output_keyEndIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    *output_keyStartIndex = -1;
+    *output_keyEndIndex   = -1;
+    *output_keyJsonType   = -1;
+
+    int endIndex;
+    if (json_getShallowArray(input_string, input_startIndex, &endIndex) != 0) {
+        return -1;
+    }
+
+    int keyStartIndex = input_startIndex + 1;
+    int keyEndIndex   = endIndex - 1;
+
+    // check the key length
+    if (keyEndIndex < keyStartIndex) {
+        if (DEBUG) {
+            printf("%s: the key is empty\n", __func__);
+        }
+        return -1;
+    }
+
+    // 1. string key
+    if (json_getString(input_string, input_startIndex + 1, &endIndex) == 0 && keyEndIndex == endIndex) {
+        *output_keyStartIndex = keyStartIndex;
+        *output_keyEndIndex   = keyEndIndex;
+        *output_keyJsonType   = JSON_VALUE_TYPE_STRING;
+
+        if (DEBUG) {
+            printf("%s: ", __func__);
+            utils_printSubstring(input_string, *output_keyStartIndex, *output_keyEndIndex);
+            printf(" (%s)\n", json_valueTypeDescription(*output_keyJsonType));
+        }
+        return 0;
+    }
+
+    // 2. number key
+    int i;
+    for (i = keyStartIndex; i <= keyEndIndex; i++) {
+        if (!isdigit(input_string[i])) {
+            return -1;
+        }
+    }
+
+    *output_keyStartIndex = keyStartIndex;
+    *output_keyEndIndex   = keyEndIndex;
+    *output_keyJsonType   = JSON_VALUE_TYPE_NUMBER;
+
+    if (DEBUG) {
+        printf("%s: ", __func__);
+        utils_printSubstring(input_string, *output_keyStartIndex, *output_keyEndIndex);
+        printf(" (%s)\n", json_valueTypeDescription(*output_keyJsonType));
+    }
     return 0;
 }

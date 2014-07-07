@@ -20,6 +20,7 @@ void test_getNextCharacterWithoutBlank();
 void test_util_stringComare();
 void test_getKeyValuePair();
 void test_getObjectValueByKey();
+void test_getKey();
 
 /* Main */
 int main() {
@@ -34,6 +35,7 @@ int main() {
     test_util_stringComare();
     test_getKeyValuePair();
     test_getObjectValueByKey();
+    test_getKey();
     return EXIT_SUCCESS;
 }
 
@@ -623,5 +625,42 @@ void test_getObjectValueByKey() {
     }
 
     free(string);
+    puts("================================================================================\n");
+}
+
+void test_getKey() {
+    puts("Test json_getKey");
+    puts("================================================================================");
+
+    char * str[100] = {
+        "[\"contents\"][0][\"productID\"][-123]",
+        "\"abc\"][-0][\"abc\"]",
+        "[\"abc\"][-0][\"abc\"",
+        "[a][b][c][d][e][f]",
+        "[]"
+    };
+
+    int i;
+    for (i = 0; str[i] != NULL; i++) {
+        printf("\n%s\n\n", str[i]);
+
+        int counter = 1;
+        int j = 0;
+        while (str[i][j] != '\0') {
+
+            int startIndex, endIndex, jsonType;
+            if (json_getKey(str[i], j, &startIndex, &endIndex, &jsonType) != 0) {
+                printf("%d. get key failure\n\n", counter++);
+                break;
+            }
+
+            printf("%d. ", counter++);
+            utils_printSubstring(str[i], startIndex, endIndex);
+            printf(" (%s)\n\n", json_valueTypeDescription(jsonType));
+
+            j = endIndex + 2;
+        }
+        puts("--------------------------------------------------------------------------------");
+    }
     puts("================================================================================\n");
 }
