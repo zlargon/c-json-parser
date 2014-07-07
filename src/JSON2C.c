@@ -7,6 +7,10 @@ int json_getShallowObject(const char * input_string, const int input_startIndex,
 int json_getShallowArray(const char * input_string, const int input_startIndex, int * output_endIndex);
 int json_getNextCharacterWithoutBlank(const char * input_string, int * index);
 
+// Utility Function
+int utils_printSubstring(const char * string, const int startIndex, const int endIndex);
+int utils_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex);
+
 
 // JSON value type description
 const char * json_valueTypeDescription(JsonValueType type) {
@@ -602,5 +606,94 @@ int json_getNextCharacterWithoutBlank(const char * input_string, int * index) {
         (*index)++;
     }
 
+    return 0;
+}
+
+int utils_printSubstring(const char * string, const int startIndex, const int endIndex) {
+    if (string == NULL) {
+        printf("%s: string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (startIndex < 0) {
+        printf("%s: startIndex (%d) should not be negative\n", __func__, startIndex);
+        return -1;
+    }
+
+    if (startIndex > endIndex) {
+        printf("%s: endIndex (%d) should greater than startIndex (%d)\n", __func__, endIndex, startIndex);
+        return -1;
+    }
+
+    int i;
+    for (i = startIndex; i <= endIndex; i++) {
+        printf("%c", string[i]);
+    }
+    return 0;
+}
+
+int utils_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex) {
+    const char DEBUG = 0;
+
+    // check arguments
+    if (s1 == NULL) {
+        printf("%s: s1 should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (s1_startIndex < 0) {
+        printf("%s: s1_startIndex (%d) should not be negative\n", __func__, s1_startIndex);
+        return -1;
+    }
+
+    if (s1_endIndex < s1_startIndex) {
+        printf("%s: s1_endIndex (%d) should greater than s1_startIndex (%d)\n", __func__, s1_endIndex, s1_startIndex);
+        return -1;
+    }
+
+    if (s2 == NULL) {
+        printf("%s: s2 should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (s2_startIndex < 0) {
+        printf("%s: s2_startIndex (%d) should not be negative\n", __func__, s2_startIndex);
+        return -1;
+    }
+
+    if (s2_endIndex < s2_startIndex) {
+        printf("%s: s2_endIndex (%d) should greater than s2_startIndex (%d)\n", __func__, s2_endIndex, s2_startIndex);
+        return -1;
+    }
+
+    // check string length
+    int s1_length = s1_endIndex - s1_startIndex + 1;
+    int s2_length = s2_endIndex - s2_startIndex + 1;
+    if (s1_length != s2_length) {
+        if (DEBUG) {
+            printf("%s: string length is not match, s1_length = %d, s2_length = %d\n\n", __func__, s1_length, s2_length);
+        }
+        return -1;
+    }
+
+    int i;
+    for (i = 0; i < s1_length; i++) {
+        if (s1[s1_startIndex + i] != s2[s2_startIndex + i]) {
+            if (DEBUG) {
+                printf("%s: string is not match, s1[%d] = %c, s2[%d] = %c\n\n", __func__, s1_startIndex + i, s1[s1_startIndex + i], s2_startIndex + i, s2[s2_startIndex + i]);
+            }
+            return -1;
+        }
+    }
+
+    if (DEBUG) {
+        printf("%s: string is match\n", __func__);
+        printf("   s1[%d..%d] = ", s1_startIndex, s1_endIndex);
+        utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+
+        printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
+        utils_printSubstring(s2, s2_startIndex, s2_endIndex);
+        puts("\n");
+    }
     return 0;
 }

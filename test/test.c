@@ -17,6 +17,7 @@ void test_getNull();
 void test_getValue();
 void test_getArrayValueByPosition();
 void test_getNextCharacterWithoutBlank();
+void test_util_stringComare();
 
 /* Main */
 int main() {
@@ -38,6 +39,7 @@ int main() {
     test_getValue();
     test_getArrayValueByPosition();
     test_getNextCharacterWithoutBlank();
+    test_util_stringComare();
 
     free(string);
     return EXIT_SUCCESS;
@@ -472,5 +474,80 @@ void test_getNextCharacterWithoutBlank() {
         puts("");
     }
 
+    puts("================================================================================\n");
+}
+
+void test_util_stringComare() {
+    puts("Test utils_stringCompare");
+    puts("================================================================================");
+
+    char * s1 = "123abcdefg";
+    char * s2 = "abcdef123g";
+
+    int i = 1;
+    int s1_startIndex;
+    int s1_endIndex;
+    int s2_startIndex;
+    int s2_endIndex;
+
+    // 1.
+    s1_startIndex = 0; s1_endIndex = 2;
+    s2_startIndex = 6; s2_endIndex = 8;
+
+    printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
+    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
+    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+
+    // 2.
+    s1_startIndex = 3; s1_endIndex = 8;
+    s2_startIndex = 0; s2_endIndex = 5;
+
+    printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
+    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
+    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+
+    // 3.
+    s1_startIndex = 0; s1_endIndex = 8;
+    s2_startIndex = 0; s2_endIndex = 5;
+
+    printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
+    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
+    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+
+    // 4.
+    s1_startIndex = 0; s1_endIndex = strlen(s1) - 1;
+    s2_startIndex = 0; s2_endIndex = strlen(s2) - 1;
+
+    printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
+    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
+    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+
+    // 5.
+    s1_startIndex = 3; s1_endIndex = strlen(s1) - 1;
+    s2_startIndex = 3; s2_endIndex = strlen(s2) - 1;
+
+    printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
+    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
+    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+
+    // 6.
+    s1_startIndex = 0; s1_endIndex = 3;
+    s2_startIndex = 6; s2_endIndex = 9;
+
+    printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
+    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
+    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
     puts("================================================================================\n");
 }
