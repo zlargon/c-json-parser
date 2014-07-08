@@ -25,6 +25,29 @@ typedef enum {
 const char * json_valueTypeDescription(JsonValueType type);
 
 /*
+ * Function: json_getValueByJS
+ *
+ * Get value by Javascript Syntax with value start & end index and JSON type.
+ *
+ * Parameters:
+ *  input_string - the character pointer.
+ *  input_startIndex - the start index of the string.
+ *  input_keys - the key of the value.
+ *  input_keyStartIndex - the start index of key.
+ *  output_valueStartIndex - the integer pointer.
+ *   -1 - failure
+ *  output_valueEndIndex - the integer pointer.
+ *   -1 - failure
+ *  output_valueJsonType - the integer pointer.
+ *   -1 - failure
+ *
+ * Returns:
+ *   0 - success
+ *  -1 - failure
+ */
+int json_getValueByJS(const char * input_string, const int input_startIndex, const char * input_keys, const int input_keyStartIndex, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType);
+
+/*
  * Function: json_getValue
  *
  * Get the value with end index and JSON type.

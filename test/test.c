@@ -21,6 +21,7 @@ void test_util_stringComare();
 void test_getKeyValuePair();
 void test_getObjectValueByKey();
 void test_getKey();
+void test_getValueByJS();
 
 /* Main */
 int main() {
@@ -36,6 +37,7 @@ int main() {
     test_getKeyValuePair();
     test_getObjectValueByKey();
     test_getKey();
+    test_getValueByJS();
     return EXIT_SUCCESS;
 }
 
@@ -662,5 +664,48 @@ void test_getKey() {
         }
         puts("--------------------------------------------------------------------------------");
     }
+    puts("================================================================================\n");
+}
+
+void test_getValueByJS() {
+    puts("Test json_getValueByJS");
+    puts("================================================================================");
+
+    const char * fileName = "sample.json";
+    char * string; // need to be free
+    if (convertFileToString(fileName, &string) != 0) {
+        printf("convert file '%s' to string failure\n", fileName);
+        return;
+    }
+    printf("%s (%lu) = %s\n", fileName, strlen(string), string);
+
+    char * keys[100] = {
+        "[\"contents\"]",
+        "[\"contents\"][0]",
+        "[\"contents\"][2]",
+        "[\"contents\"][0][\"productName\"]",
+        "[]",
+        "[0]",
+        "[\"orderID\"]",
+        "[\"contents\"][0][\"quantity\"]"
+    };
+
+    int i;
+    for (i = 0; keys[i] != NULL; i++) {
+        puts("--------------------------------------------------------------------------------");
+        printf("%2d. KEY (%lu) = %s\n", i + 1, strlen(keys[i]), keys[i]);
+
+        int valueStartIndex, valueEndIndex, valueJsonType;
+        if (json_getValueByJS(string, 0, keys[i], 0, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
+            printf("%s is not found\n\n", keys[i]);
+            continue;
+        }
+
+        printf("    VALUE (%s) = ", json_valueTypeDescription(valueJsonType));
+        utils_printSubstring(string, valueStartIndex, valueEndIndex);
+        puts("\n");
+    }
+
+    free(string);
     puts("================================================================================\n");
 }

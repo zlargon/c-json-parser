@@ -29,6 +29,124 @@ const char * json_valueTypeDescription(JsonValueType type) {
     }
 }
 
+// Get the value with start & end index and JSON type.
+int json_getValueByJS(const char * input_string, const int input_startIndex, const char * input_keys, const int input_keyStartIndex, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType) {
+    const char DEBUG = 0;
+
+    // check arguments
+    if (input_string == NULL) {
+        printf("%s: input_string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_startIndex < 0) {
+        printf("%s: input_startIndex (%d) should not be negative\n", __func__, input_startIndex);
+        return -1;
+    }
+
+    if (output_valueStartIndex == NULL) {
+        printf("%s: output_valueStartIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_valueEndIndex == NULL) {
+        printf("%s: output_valueEndIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_valueJsonType == NULL) {
+        printf("%s: output_valueJsonType should not be NULL\n", __func__);
+        return -1;
+    }
+
+    // set output to default
+    *output_valueStartIndex = -1;
+    *output_valueEndIndex   = -1;
+    *output_valueJsonType   = -1;
+
+    int i = input_startIndex;
+    int key_i = input_keyStartIndex;
+    for (;;) {
+        // 1. get key
+        int keyStartIndex, keyEndIndex, keyJsonType;
+        if (json_getKey(input_keys, key_i, &keyStartIndex, &keyEndIndex, &keyJsonType) != 0) {
+            if (DEBUG) {
+                printf("%s: get key at %d failure\n", __func__, key_i);
+            }
+            return -1;
+        }
+
+        // 2-1. json object get value by key
+        int valueStartIndex, valueEndIndex, valueJsonType;
+        if (keyJsonType == JSON_VALUE_TYPE_STRING) {
+            if (json_getObjectValueByKey(input_string, i, input_keys, keyStartIndex, keyEndIndex, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
+                if (DEBUG) {
+                    printf("%s: ", __func__);
+                    utils_printSubstring(input_keys, keyStartIndex, keyEndIndex);
+                    printf(" is not found\n");
+                }
+                return -1;
+            }
+
+            // key is found
+            if (DEBUG) {
+                printf("%s: ", __func__);
+                utils_printSubstring(input_keys, keyStartIndex, keyEndIndex);
+                printf(" = ");
+                utils_printSubstring(input_string, valueStartIndex, valueEndIndex);
+                printf(" (%s)\n", json_valueTypeDescription(valueJsonType));
+            }
+        }
+
+        // 2-2. json array get value by position
+        else if (keyJsonType == JSON_VALUE_TYPE_NUMBER) {
+            // convert key string to integer position
+            int j, position = 0;
+            for (j = keyStartIndex; j <= keyEndIndex; j++) {
+                position = position * 10 + (input_keys[j] - 48);
+            }
+
+            if (json_getArrayValueByPosition(input_string, i, position, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
+                if (DEBUG) {
+                    printf("%s: ", __func__);
+                    utils_printSubstring(input_keys, keyStartIndex, keyEndIndex);
+                    printf(" is not found\n");
+                }
+                return -1;
+            }
+
+            // key is found
+            if (DEBUG) {
+                printf("%s: ", __func__);
+                utils_printSubstring(input_keys, keyStartIndex, keyEndIndex);
+                printf(" = ");
+                utils_printSubstring(input_string, valueStartIndex, valueEndIndex);
+                printf(" (%s)\n", json_valueTypeDescription(valueJsonType));
+            }
+        }
+
+        // 2-3. others, this might be BUG
+        else {
+            printf("%s: [BUG] key type (%s) shoud be a string or integer\n", __func__, json_valueTypeDescription(valueJsonType));
+        }
+
+        // 3. move to next key, and next value
+        i = valueStartIndex;
+        key_i = keyEndIndex + 2;
+
+        if (input_keys[key_i] == '\0') {
+            if (DEBUG) {
+                printf("%s: it's the end of the keys (%d)\n", __func__, key_i);
+            }
+
+            *output_valueStartIndex = valueStartIndex;
+            *output_valueEndIndex   = valueEndIndex;
+            *output_valueJsonType   = valueJsonType;
+            return 0;
+        }
+    }
+}
+
 // Get the value with end index and JSON type.
 int json_getValue(const char * input_string, const int input_startIndex, int * output_endIndex, int * output_jsonType) {
     // check input arguments
