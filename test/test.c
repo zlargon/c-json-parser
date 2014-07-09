@@ -10,18 +10,20 @@ int printHexArray(const char * array, int startIndex, int length);
 
 /* Test Function */
 void test_json_type_toString();
+void test_getValueByJS();
+void test_json_object_getValueByKey();
+void test_json_array_getValueByPosition();
+
+void test_json_getKeyValuePair();
+void test_json_getKey();
+void test_json_getValue();
 void test_json_getString();
 void test_json_getNumber();
 void test_json_getBoolean();
 void test_json_getNull();
-void test_json_getValue();
-void test_json_array_getValueByPosition();
-void test_getNextCharacterWithoutBlank();
-void test_util_stringComare();
-void test_getKeyValuePair();
-void test_json_object_getValueByKey();
-void test_getKey();
-void test_getValueByJS();
+
+void test_json_util_stringComare();
+void test_json_util_getNextCharacter();
 
 /* Main */
 int main() {
@@ -32,11 +34,11 @@ int main() {
     test_json_getNull();
     test_json_getValue();
     test_json_array_getValueByPosition();
-    test_getNextCharacterWithoutBlank();
-    test_util_stringComare();
-    test_getKeyValuePair();
+    test_json_util_getNextCharacter();
+    test_json_util_stringComare();
+    test_json_getKeyValuePair();
     test_json_object_getValueByKey();
-    test_getKey();
+    test_json_getKey();
     test_getValueByJS();
     return EXIT_SUCCESS;
 }
@@ -442,8 +444,8 @@ void test_json_array_getValueByPosition() {
     puts("================================================================================\n");
 }
 
-void test_getNextCharacterWithoutBlank() {
-    puts("Test json_getNextCharacterWithoutBlank");
+void test_json_util_getNextCharacter() {
+    puts("Test json_util_getNextCharacter");
     puts("================================================================================");
     puts("    0123456789 123456789 123456789\n");
 
@@ -461,7 +463,7 @@ void test_getNextCharacterWithoutBlank() {
 
         int j = 0;
         for (;;) {
-            if (json_getNextCharacterWithoutBlank(str[i], &j) == -1) {
+            if (json_util_getNextCharacter(str[i], &j) == -1) {
                 break;
             }
             printf("    str[%d] = %c\n", j, str[i][j]);
@@ -473,8 +475,8 @@ void test_getNextCharacterWithoutBlank() {
     puts("================================================================================\n");
 }
 
-void test_util_stringComare() {
-    puts("Test utils_stringCompare");
+void test_json_util_stringComare() {
+    puts("Test json_util_stringCompare");
     puts("================================================================================");
 
     char * s1 = "123abcdefg";
@@ -491,65 +493,65 @@ void test_util_stringComare() {
     s2_startIndex = 6; s2_endIndex = 8;
 
     printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
-    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    json_util_printSubstring(s1, s1_startIndex, s1_endIndex);
     printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
-    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
-    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+    json_util_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", json_util_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
 
     // 2.
     s1_startIndex = 3; s1_endIndex = 8;
     s2_startIndex = 0; s2_endIndex = 5;
 
     printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
-    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    json_util_printSubstring(s1, s1_startIndex, s1_endIndex);
     printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
-    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
-    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+    json_util_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", json_util_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
 
     // 3.
     s1_startIndex = 0; s1_endIndex = 8;
     s2_startIndex = 0; s2_endIndex = 5;
 
     printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
-    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    json_util_printSubstring(s1, s1_startIndex, s1_endIndex);
     printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
-    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
-    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+    json_util_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", json_util_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
 
     // 4.
     s1_startIndex = 0; s1_endIndex = strlen(s1) - 1;
     s2_startIndex = 0; s2_endIndex = strlen(s2) - 1;
 
     printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
-    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    json_util_printSubstring(s1, s1_startIndex, s1_endIndex);
     printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
-    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
-    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+    json_util_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", json_util_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
 
     // 5.
     s1_startIndex = 3; s1_endIndex = strlen(s1) - 1;
     s2_startIndex = 3; s2_endIndex = strlen(s2) - 1;
 
     printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
-    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    json_util_printSubstring(s1, s1_startIndex, s1_endIndex);
     printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
-    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
-    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+    json_util_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", json_util_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
 
     // 6.
     s1_startIndex = 0; s1_endIndex = 3;
     s2_startIndex = 6; s2_endIndex = 9;
 
     printf("%d. s1[%d..%d] = ", i++, s1_startIndex, s1_endIndex);
-    utils_printSubstring(s1, s1_startIndex, s1_endIndex);
+    json_util_printSubstring(s1, s1_startIndex, s1_endIndex);
     printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
-    utils_printSubstring(s2, s2_startIndex, s2_endIndex);
-    printf("\n   it's%s match\n\n", utils_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
+    json_util_printSubstring(s2, s2_startIndex, s2_endIndex);
+    printf("\n   it's%s match\n\n", json_util_stringCompare(s1, s1_startIndex, s1_endIndex, s2, s2_startIndex, s2_endIndex) == 0 ? "" : " not");
 
     puts("================================================================================\n");
 }
 
-void test_getKeyValuePair() {
+void test_json_getKeyValuePair() {
     puts("Test json_getKeyValuePair");
     puts("================================================================================");
     puts("    0123456789 123456789 123456789\n");
@@ -577,10 +579,10 @@ void test_getKeyValuePair() {
         }
 
         printf("%2d. %s\n\n      Key = ", i + 1, str[i]);
-        utils_printSubstring(str[i], keyStartIndex, keyEndIndex);
+        json_util_printSubstring(str[i], keyStartIndex, keyEndIndex);
 
         printf(" [%d..%d]\n    Value = ", keyStartIndex, keyEndIndex);
-        utils_printSubstring(str[i], valueStartIndex, valueEndIndex);
+        json_util_printSubstring(str[i], valueStartIndex, valueEndIndex);
         printf(" [%d..%d] (%s)\n\n", valueStartIndex, valueEndIndex, json_type_toString(valueJsonType));
         puts("--------------------------------------------------------------------------------");
     }
@@ -622,7 +624,7 @@ void test_json_object_getValueByKey() {
 
         // value is found
         printf("%d. %s = ", i + 1, keys[i]);
-        utils_printSubstring(string, valueStartIndex, valueEndIndex);
+        json_util_printSubstring(string, valueStartIndex, valueEndIndex);
         printf(" (%s)\n\n", json_type_toString(valueJsonType));
     }
 
@@ -630,7 +632,7 @@ void test_json_object_getValueByKey() {
     puts("================================================================================\n");
 }
 
-void test_getKey() {
+void test_json_getKey() {
     puts("Test json_getKey");
     puts("================================================================================");
 
@@ -657,7 +659,7 @@ void test_getKey() {
             }
 
             printf("%d. ", counter++);
-            utils_printSubstring(str[i], startIndex, endIndex);
+            json_util_printSubstring(str[i], startIndex, endIndex);
             printf(" (%s)\n\n", json_type_toString(jsonType));
 
             j = endIndex + 2;
@@ -702,7 +704,7 @@ void test_getValueByJS() {
         }
 
         printf("    VALUE (%s) = ", json_type_toString(valueJsonType));
-        utils_printSubstring(string, valueStartIndex, valueEndIndex);
+        json_util_printSubstring(string, valueStartIndex, valueEndIndex);
         puts("\n");
     }
 
