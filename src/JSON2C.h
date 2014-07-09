@@ -1,20 +1,20 @@
 #ifndef __JSON2C_H
 #define __JSON2C_H
 
-// JSON Value Types
-typedef enum {
-    JSON_VALUE_TYPE_OBJECT,
-    JSON_VALUE_TYPE_ARRAY,
-    JSON_VALUE_TYPE_NUMBER,
-    JSON_VALUE_TYPE_STRING,
-    JSON_VALUE_TYPE_BOOLEAN,
-    JSON_VALUE_TYPE_NULL
-} JsonValueType;
+// JSON Type
+enum {
+    JSON_TYPE_OBJECT,
+    JSON_TYPE_ARRAY,
+    JSON_TYPE_NUMBER,
+    JSON_TYPE_STRING,
+    JSON_TYPE_BOOLEAN,
+    JSON_TYPE_NULL
+};
 
 /*
- * Function: json_valueTypeDescription
+ * Function: json_type_toString
  *
- * Call to obtain a const string description of JSON value type.
+ * Call to obtain a const string of JSON value type.
  *
  * Parameters:
  *  type - a integer.
@@ -22,7 +22,7 @@ typedef enum {
  * Returns:
  *  A constant string describing the JSON value type.
  */
-const char * json_valueTypeDescription(JsonValueType type);
+const char * json_type_toString(int type);
 
 /*
  * Function: json_getValueByJS

@@ -9,7 +9,7 @@ int convertFileToString(const char * input_fileName, char ** output_stringPointe
 int printHexArray(const char * array, int startIndex, int length);
 
 /* Test Function */
-void test_valueTypeDescription();
+void test_json_type_toString();
 void test_getString();
 void test_getNumber();
 void test_getBoolean();
@@ -25,7 +25,7 @@ void test_getValueByJS();
 
 /* Main */
 int main() {
-    test_valueTypeDescription();
+    test_json_type_toString();
     test_getString();
     test_getNumber();
     test_getBoolean();
@@ -114,12 +114,12 @@ int printHexArray(const char * array, int startIndex, int length) {
     return 0;
 }
 
-void test_valueTypeDescription() {
+void test_json_type_toString() {
     puts("Test json type description");
     puts("================================================================================");
     int i;
     for (i = -1; i <= 7; i++) {
-        printf("%s\n", json_valueTypeDescription(i));
+        printf("%s\n", json_type_toString(i));
     }
     puts("================================================================================\n");
 }
@@ -394,7 +394,7 @@ void test_getValue() {
     for (i = 0; str[i] != NULL; i++) {
         startIndex = 0;
         if (json_getValue(str[i], startIndex, &endIndex, &jsonType) == 0) {
-            printf("%d. %s [%d..%d] is %s\n\n", i + 1, str[i], startIndex, endIndex, json_valueTypeDescription(jsonType));
+            printf("%d. %s [%d..%d] is %s\n\n", i + 1, str[i], startIndex, endIndex, json_type_toString(jsonType));
         } else {
             printf("%d. %s is not JSON value\n\n", i + 1, str[i]);
         }
@@ -436,7 +436,7 @@ void test_getArrayValueByPosition() {
         for (j = valueStartIndex; j <= valueEndIndex; j++) {
             printf("%c", str[j]);
         }
-        printf(" (%s)\n\n", json_valueTypeDescription(valueJsonType));
+        printf(" (%s)\n\n", json_type_toString(valueJsonType));
     }
 
     puts("================================================================================\n");
@@ -581,7 +581,7 @@ void test_getKeyValuePair() {
 
         printf(" [%d..%d]\n    Value = ", keyStartIndex, keyEndIndex);
         utils_printSubstring(str[i], valueStartIndex, valueEndIndex);
-        printf(" [%d..%d] (%s)\n\n", valueStartIndex, valueEndIndex, json_valueTypeDescription(valueJsonType));
+        printf(" [%d..%d] (%s)\n\n", valueStartIndex, valueEndIndex, json_type_toString(valueJsonType));
         puts("--------------------------------------------------------------------------------");
     }
 
@@ -623,7 +623,7 @@ void test_getObjectValueByKey() {
         // value is found
         printf("%d. %s = ", i + 1, keys[i]);
         utils_printSubstring(string, valueStartIndex, valueEndIndex);
-        printf(" (%s)\n\n", json_valueTypeDescription(valueJsonType));
+        printf(" (%s)\n\n", json_type_toString(valueJsonType));
     }
 
     free(string);
@@ -658,7 +658,7 @@ void test_getKey() {
 
             printf("%d. ", counter++);
             utils_printSubstring(str[i], startIndex, endIndex);
-            printf(" (%s)\n\n", json_valueTypeDescription(jsonType));
+            printf(" (%s)\n\n", json_type_toString(jsonType));
 
             j = endIndex + 2;
         }
@@ -701,7 +701,7 @@ void test_getValueByJS() {
             continue;
         }
 
-        printf("    VALUE (%s) = ", json_valueTypeDescription(valueJsonType));
+        printf("    VALUE (%s) = ", json_type_toString(valueJsonType));
         utils_printSubstring(string, valueStartIndex, valueEndIndex);
         puts("\n");
     }

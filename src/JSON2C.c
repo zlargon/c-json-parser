@@ -14,15 +14,15 @@ int utils_printSubstring(const char * string, const int startIndex, const int en
 int utils_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex);
 
 
-// JSON value type description
-const char * json_valueTypeDescription(JsonValueType type) {
+// JSON type description
+const char * json_type_toString(int type) {
     switch (type) {
-        case JSON_VALUE_TYPE_OBJECT:  return "object";
-        case JSON_VALUE_TYPE_ARRAY:   return "array";
-        case JSON_VALUE_TYPE_NUMBER:  return "number";
-        case JSON_VALUE_TYPE_STRING:  return "string";
-        case JSON_VALUE_TYPE_BOOLEAN: return "boolean";
-        case JSON_VALUE_TYPE_NULL:    return "null";
+        case JSON_TYPE_OBJECT:  return "object";
+        case JSON_TYPE_ARRAY:   return "array";
+        case JSON_TYPE_NUMBER:  return "number";
+        case JSON_TYPE_STRING:  return "string";
+        case JSON_TYPE_BOOLEAN: return "boolean";
+        case JSON_TYPE_NULL:    return "null";
         default:
             printf("error: unknown type (%d)\n", type);
             return "unknown";
@@ -78,7 +78,7 @@ int json_getValueByJS(const char * input_string, const int input_startIndex, con
 
         // 2-1. json object get value by key
         int valueStartIndex, valueEndIndex, valueJsonType;
-        if (keyJsonType == JSON_VALUE_TYPE_STRING) {
+        if (keyJsonType == JSON_TYPE_STRING) {
             if (json_getObjectValueByKey(input_string, i, input_keys, keyStartIndex, keyEndIndex, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
                 if (DEBUG) {
                     printf("%s: ", __func__);
@@ -94,12 +94,12 @@ int json_getValueByJS(const char * input_string, const int input_startIndex, con
                 utils_printSubstring(input_keys, keyStartIndex, keyEndIndex);
                 printf(" = ");
                 utils_printSubstring(input_string, valueStartIndex, valueEndIndex);
-                printf(" (%s)\n", json_valueTypeDescription(valueJsonType));
+                printf(" (%s)\n", json_type_toString(valueJsonType));
             }
         }
 
         // 2-2. json array get value by position
-        else if (keyJsonType == JSON_VALUE_TYPE_NUMBER) {
+        else if (keyJsonType == JSON_TYPE_NUMBER) {
             // convert key string to integer position
             int j, position = 0;
             for (j = keyStartIndex; j <= keyEndIndex; j++) {
@@ -121,13 +121,13 @@ int json_getValueByJS(const char * input_string, const int input_startIndex, con
                 utils_printSubstring(input_keys, keyStartIndex, keyEndIndex);
                 printf(" = ");
                 utils_printSubstring(input_string, valueStartIndex, valueEndIndex);
-                printf(" (%s)\n", json_valueTypeDescription(valueJsonType));
+                printf(" (%s)\n", json_type_toString(valueJsonType));
             }
         }
 
         // 2-3. others, this might be BUG
         else {
-            printf("%s: [BUG] key type (%s) shoud be a string or integer\n", __func__, json_valueTypeDescription(valueJsonType));
+            printf("%s: [BUG] key type (%s) shoud be a string or integer\n", __func__, json_type_toString(valueJsonType));
         }
 
         // 3. move to next key, and next value
@@ -173,37 +173,37 @@ int json_getValue(const char * input_string, const int input_startIndex, int * o
 
     // 1. String
     if (json_getString(input_string, input_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_VALUE_TYPE_STRING;
+        *output_jsonType = JSON_TYPE_STRING;
         return 0;
     }
 
     // 2. Number
     if (json_getNumber(input_string, input_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_VALUE_TYPE_NUMBER;
+        *output_jsonType = JSON_TYPE_NUMBER;
         return 0;
     }
 
     // 3. Boolean
     if (json_getBoolean(input_string, input_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_VALUE_TYPE_BOOLEAN;
+        *output_jsonType = JSON_TYPE_BOOLEAN;
         return 0;
     }
 
     // 4. Null
     if (json_getNull(input_string, input_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_VALUE_TYPE_NULL;
+        *output_jsonType = JSON_TYPE_NULL;
         return 0;
     }
 
     // 5. Shallow Object: only find the left and right curly bracket
     if (json_getShallowObject(input_string, input_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_VALUE_TYPE_OBJECT;
+        *output_jsonType = JSON_TYPE_OBJECT;
         return 0;
     }
 
     // 6. Shallow Array: only find the left and right square bracket
     if (json_getShallowArray(input_string, input_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_VALUE_TYPE_ARRAY;
+        *output_jsonType = JSON_TYPE_ARRAY;
         return 0;
     }
 
@@ -1095,12 +1095,12 @@ int json_getKey(const char * input_string, const int input_startIndex, int * out
     if (json_getString(input_string, input_startIndex + 1, &endIndex) == 0 && keyEndIndex == endIndex) {
         *output_keyStartIndex = keyStartIndex;
         *output_keyEndIndex   = keyEndIndex;
-        *output_keyJsonType   = JSON_VALUE_TYPE_STRING;
+        *output_keyJsonType   = JSON_TYPE_STRING;
 
         if (DEBUG) {
             printf("%s: ", __func__);
             utils_printSubstring(input_string, *output_keyStartIndex, *output_keyEndIndex);
-            printf(" (%s)\n", json_valueTypeDescription(*output_keyJsonType));
+            printf(" (%s)\n", json_type_toString(*output_keyJsonType));
         }
         return 0;
     }
@@ -1115,12 +1115,12 @@ int json_getKey(const char * input_string, const int input_startIndex, int * out
 
     *output_keyStartIndex = keyStartIndex;
     *output_keyEndIndex   = keyEndIndex;
-    *output_keyJsonType   = JSON_VALUE_TYPE_NUMBER;
+    *output_keyJsonType   = JSON_TYPE_NUMBER;
 
     if (DEBUG) {
         printf("%s: ", __func__);
         utils_printSubstring(input_string, *output_keyStartIndex, *output_keyEndIndex);
-        printf(" (%s)\n", json_valueTypeDescription(*output_keyJsonType));
+        printf(" (%s)\n", json_type_toString(*output_keyJsonType));
     }
     return 0;
 }
