@@ -2,23 +2,31 @@
 #include <ctype.h>
 #include "JSON2C.h"
 
-// Internal Function
-int json_getKeyValuePair(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
-int json_getKey(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_key_jsonType);
-int json_getValue(const char * input_string, const int input_string_startIndex, int * output_endIndex, int * output_jsonType);
-int json_getNumber(const char * input_string, const int input_string_startIndex, int * output_endIndex);
-int json_getString(const char * input_string, const int input_string_startIndex, int * output_endIndex);
-int json_getBoolean(const char * input_string, const int input_string_startIndex, int * output_endIndex);
-int json_getNull(const char * input_string, const int input_string_startIndex, int * output_endIndex);
-int json_getObjectInShallow(const char * input_string, const int input_string_startIndex, int * output_endIndex);
-int json_getArrayInShallow(const char * input_string, const int input_string_startIndex, int * output_endIndex);
+// 1. JSON API
+const char * json_type_toString(int type);
+int             json_getValueByJS(const char * input_string, const int input_string_startIndex, const char * input_keys, const int input_keys_startIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
+int     json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
+int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 
-// Utility Function
+// 2. Internal Function
+int    json_getKeyValuePair(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
+int             json_getKey(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_key_jsonType);
+
+// 3. Get Value Function
+int           json_getValue(const char * input_string, const int input_string_startIndex, int * output_endIndex, int * output_jsonType);
+int json_getObjectInShallow(const char * input_string, const int input_string_startIndex, int * output_endIndex);
+int  json_getArrayInShallow(const char * input_string, const int input_string_startIndex, int * output_endIndex);
+int          json_getNumber(const char * input_string, const int input_string_startIndex, int * output_endIndex);
+int          json_getString(const char * input_string, const int input_string_startIndex, int * output_endIndex);
+int         json_getBoolean(const char * input_string, const int input_string_startIndex, int * output_endIndex);
+int            json_getNull(const char * input_string, const int input_string_startIndex, int * output_endIndex);
+
+// 4. Utility Function
 int json_util_printSubstring(const char * string, const int startIndex, const int endIndex);
 int json_util_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex);
-int json_util_getNextCharacter(const char * input_string, int * index);
+int json_util_getNextCharacter(const char * string, int * index);
 
-// JSON type description
+// 1-1. JSON type description
 const char * json_type_toString(int type) {
     switch (type) {
         case JSON_TYPE_OBJECT:  return "object";
@@ -33,7 +41,7 @@ const char * json_type_toString(int type) {
     }
 }
 
-// Get the value with start & end index and JSON type.
+// 1-2. Get the value with start & end index and JSON type.
 int json_getValueByJS(const char * input_string, const int input_string_startIndex, const char * input_keys, const int input_keys_startIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
@@ -161,73 +169,7 @@ int json_getValueByJS(const char * input_string, const int input_string_startInd
     }
 }
 
-// Get the value with end index and JSON type.
-int json_getValue(const char * input_string, const int input_string_startIndex, int * output_endIndex, int * output_jsonType) {
-    // check input arguments
-    if (input_string == NULL) {
-        printf("%s: input_string should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (input_string_startIndex < 0) {
-        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
-        return -1;
-    }
-
-    if (output_endIndex == NULL) {
-        printf("%s: output_endIndex should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (output_jsonType == NULL) {
-        printf("%s: output_jsonType should not be NULL\n", __func__);
-        return -1;
-    }
-
-
-    // 1. String
-    if (json_getString(input_string, input_string_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_TYPE_STRING;
-        return 0;
-    }
-
-    // 2. Number
-    if (json_getNumber(input_string, input_string_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_TYPE_NUMBER;
-        return 0;
-    }
-
-    // 3. Boolean
-    if (json_getBoolean(input_string, input_string_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_TYPE_BOOLEAN;
-        return 0;
-    }
-
-    // 4. Null
-    if (json_getNull(input_string, input_string_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_TYPE_NULL;
-        return 0;
-    }
-
-    // 5. Shallow Object: only find the left and right curly bracket
-    if (json_getObjectInShallow(input_string, input_string_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_TYPE_OBJECT;
-        return 0;
-    }
-
-    // 6. Shallow Array: only find the left and right square bracket
-    if (json_getArrayInShallow(input_string, input_string_startIndex, output_endIndex) == 0) {
-        *output_jsonType = JSON_TYPE_ARRAY;
-        return 0;
-    }
-
-    // get value failure
-    *output_jsonType = -1;
-    *output_endIndex = -1;
-    return -1;
-}
-
-// Get value by key with value start & end index and JSON type.
+// 1-3. Get value by key with value start & end index and JSON type.
 int json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
@@ -301,7 +243,7 @@ int json_object_getValueByKey(const char * input_string, const int input_string_
     for (;;) {
         // 1-1. get the key value pair
         int keyStartIndex, keyEndIndex, valueStartIndex, valueEndIndex, valueJsonType;
-        if (json_getKeyValuePair(input_string, i, &keyStartIndex, &keyEndIndex, &valueStartIndex, &valueEndIndex, &valueJsonType) == -1) {
+        if (json_getKeyValuePair(input_string, i, &keyStartIndex, &keyEndIndex, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
             if (DEBUG) {
                 printf("%s: invalid JSON Key Value Pair at %d (%c)\n", __func__, i, input_string[i]);
             }
@@ -362,7 +304,7 @@ end_of_object:
     return -1;
 }
 
-// Get array value by position with value start & end index and JSON type.
+// 1-4. Get array value by position with value start & end index and JSON type.
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
@@ -488,7 +430,339 @@ end_of_array:
     return -1;
 }
 
-// Get the number with end index
+// 2-1. Get Key Value Pair
+int json_getKeyValuePair(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
+    // check arguments
+    if (input_string == NULL) {
+        printf("%s: input_string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_string_startIndex < 0) {
+        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
+        return -1;
+    }
+
+    if (output_key_startIndex == NULL) {
+        printf("%s: output_key_startIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_key_endIndex == NULL) {
+        printf("%s: output_key_endIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_value_startIndex == NULL) {
+        printf("%s: output_value_startIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_value_endIndex == NULL) {
+        printf("%s: output_value_endIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_value_jsonType == NULL) {
+        printf("%s: output_value_jsonType should not be NULL\n", __func__);
+        return -1;
+    }
+
+    // set output parameters to default -1
+    *output_key_startIndex   = -1;
+    *output_key_endIndex     = -1;
+    *output_value_startIndex = -1;
+    *output_value_endIndex   = -1;
+    *output_value_jsonType   = -1;
+
+    int i = input_string_startIndex;
+
+    // filter the blank, util find the next character
+    if (json_util_getNextCharacter(input_string, &i) != 0) {
+        return -1;
+    }
+
+    // 1. get key success
+    int keyStartIndex = i;
+    int keyEndIndex;
+    if (json_getString(input_string, keyStartIndex, &keyEndIndex) != 0) {
+        return -1;
+    }
+
+    // move to the index behind the key
+    i = keyEndIndex + 1;
+
+    // filter the blank, util find the next character
+    if (json_util_getNextCharacter(input_string, &i) != 0) {
+        return -1;
+    }
+
+    // 2. find the colon
+    if (input_string[i] != ':') {
+        printf("%s: the character at %d (%c 0x%02x) should be colon (:)\n", __func__, i, input_string[i], input_string[i]);
+        return -1;
+    }
+    i++;
+
+    // filter the blank, util find the next character
+    if (json_util_getNextCharacter(input_string, &i) != 0) {
+        return -1;
+    }
+
+    // 3. get value
+    int valueStartIndex = i;
+    int valueEndIndex;
+    int valueJsonType;
+    if (json_getValue(input_string, valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
+        return -1;
+    }
+
+    *output_key_startIndex   = keyStartIndex;
+    *output_key_endIndex     = keyEndIndex;
+    *output_value_startIndex = valueStartIndex;
+    *output_value_endIndex   = valueEndIndex;
+    *output_value_jsonType   = valueJsonType;
+    return 0;
+}
+
+// 2-2. Get Key
+int json_getKey(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_key_jsonType) {
+    const char DEBUG = 0;
+
+    // check arguments
+    if (input_string == NULL) {
+        printf("%s: input_string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_string_startIndex < 0) {
+        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
+        return -1;
+    }
+
+    if (output_key_startIndex == NULL) {
+        printf("%s: output_key_startIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_key_endIndex == NULL) {
+        printf("%s: output_key_endIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    *output_key_startIndex = -1;
+    *output_key_endIndex   = -1;
+    *output_key_jsonType   = -1;
+
+    int endIndex;
+    if (json_getArrayInShallow(input_string, input_string_startIndex, &endIndex) != 0) {
+        return -1;
+    }
+
+    int keyStartIndex = input_string_startIndex + 1;
+    int keyEndIndex   = endIndex - 1;
+
+    // check the key length
+    if (keyEndIndex < keyStartIndex) {
+        if (DEBUG) {
+            printf("%s: the key is empty\n", __func__);
+        }
+        return -1;
+    }
+
+    // 1. string key
+    if (json_getString(input_string, input_string_startIndex + 1, &endIndex) == 0 && keyEndIndex == endIndex) {
+        *output_key_startIndex = keyStartIndex;
+        *output_key_endIndex   = keyEndIndex;
+        *output_key_jsonType   = JSON_TYPE_STRING;
+
+        if (DEBUG) {
+            printf("%s: ", __func__);
+            json_util_printSubstring(input_string, *output_key_startIndex, *output_key_endIndex);
+            printf(" (%s)\n", json_type_toString(*output_key_jsonType));
+        }
+        return 0;
+    }
+
+    // 2. number key
+    int i;
+    for (i = keyStartIndex; i <= keyEndIndex; i++) {
+        if (!isdigit(input_string[i])) {
+            return -1;
+        }
+    }
+
+    *output_key_startIndex = keyStartIndex;
+    *output_key_endIndex   = keyEndIndex;
+    *output_key_jsonType   = JSON_TYPE_NUMBER;
+
+    if (DEBUG) {
+        printf("%s: ", __func__);
+        json_util_printSubstring(input_string, *output_key_startIndex, *output_key_endIndex);
+        printf(" (%s)\n", json_type_toString(*output_key_jsonType));
+    }
+    return 0;
+}
+
+
+// 3. Get Value with start & end index and JSON type
+int json_getValue(const char * input_string, const int input_string_startIndex, int * output_endIndex, int * output_jsonType) {
+    // check input arguments
+    if (input_string == NULL) {
+        printf("%s: input_string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_string_startIndex < 0) {
+        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
+        return -1;
+    }
+
+    if (output_endIndex == NULL) {
+        printf("%s: output_endIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_jsonType == NULL) {
+        printf("%s: output_jsonType should not be NULL\n", __func__);
+        return -1;
+    }
+
+
+    // 1. String
+    if (json_getString(input_string, input_string_startIndex, output_endIndex) == 0) {
+        *output_jsonType = JSON_TYPE_STRING;
+        return 0;
+    }
+
+    // 2. Number
+    if (json_getNumber(input_string, input_string_startIndex, output_endIndex) == 0) {
+        *output_jsonType = JSON_TYPE_NUMBER;
+        return 0;
+    }
+
+    // 3. Boolean
+    if (json_getBoolean(input_string, input_string_startIndex, output_endIndex) == 0) {
+        *output_jsonType = JSON_TYPE_BOOLEAN;
+        return 0;
+    }
+
+    // 4. Null
+    if (json_getNull(input_string, input_string_startIndex, output_endIndex) == 0) {
+        *output_jsonType = JSON_TYPE_NULL;
+        return 0;
+    }
+
+    // 5. Shallow Object: only find the left and right curly bracket
+    if (json_getObjectInShallow(input_string, input_string_startIndex, output_endIndex) == 0) {
+        *output_jsonType = JSON_TYPE_OBJECT;
+        return 0;
+    }
+
+    // 6. Shallow Array: only find the left and right square bracket
+    if (json_getArrayInShallow(input_string, input_string_startIndex, output_endIndex) == 0) {
+        *output_jsonType = JSON_TYPE_ARRAY;
+        return 0;
+    }
+
+    // get value failure
+    *output_jsonType = -1;
+    *output_endIndex = -1;
+    return -1;
+}
+
+// 3-1. Get Object in Shallow
+int json_getObjectInShallow(const char * input_string, const int input_string_startIndex, int * output_endIndex) {
+    // check input arguments
+    if (input_string == NULL) {
+        printf("%s: input_string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_string_startIndex < 0) {
+        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
+        return -1;
+    }
+
+    if (output_endIndex == NULL) {
+        printf("%s: output_endIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_string[input_string_startIndex] == '{') {
+
+        int i, stack = 1;
+        for (i = input_string_startIndex + 1; input_string[i] != '\0'; i++) {
+
+            // left curly bracket
+            if (input_string[i] == '{') {
+                stack++;
+                continue;
+            }
+
+            // right curly bracket
+            if (input_string[i] == '}') {
+                stack--;
+
+                if (stack == 0) {
+                    *output_endIndex = i;
+                    return 0;
+                }
+            }
+        }
+    }
+
+    *output_endIndex = -1;
+    return -1;
+}
+
+// 3-2. Get Array in Shallow
+int json_getArrayInShallow(const char * input_string, const int input_string_startIndex, int * output_endIndex) {
+    // check input arguments
+    if (input_string == NULL) {
+        printf("%s: input_string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_string_startIndex < 0) {
+        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
+        return -1;
+    }
+
+    if (output_endIndex == NULL) {
+        printf("%s: output_endIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_string[input_string_startIndex] == '[') {
+
+        int i, stack = 1;
+        for (i = input_string_startIndex + 1; input_string[i] != '\0'; i++) {
+
+            // left square bracket
+            if (input_string[i] == '[') {
+                stack++;
+                continue;
+            }
+
+            // right square bracket
+            if (input_string[i] == ']') {
+                stack--;
+
+                if (stack == 0) {
+                    *output_endIndex = i;
+                    return 0;
+                }
+            }
+        }
+    }
+
+    *output_endIndex = -1;
+    return -1;
+}
+
+
+// 3-3. Get the number with end index
 int json_getNumber(const char * input_string, const int input_string_startIndex, int * output_endIndex) {
     const char DEBUG = 0;
 
@@ -586,7 +860,8 @@ exponent_part:
     return 0;
 }
 
-// Get the string with end index
+
+// 3-4. Get the string with end index
 int json_getString(const char * input_string, const int input_string_startIndex, int * output_endIndex) {
     const char DEBUG = 0;
 
@@ -683,7 +958,7 @@ int json_getString(const char * input_string, const int input_string_startIndex,
     }
 }
 
-// Get the boolean with end index.
+// 3-5. Get the boolean with end index.
 int json_getBoolean(const char * input_string, const int input_string_startIndex, int * output_endIndex) {
     // check input arguments
     if (input_string == NULL) {
@@ -722,7 +997,7 @@ int json_getBoolean(const char * input_string, const int input_string_startIndex
     return 0;
 }
 
-// Get the null with end index.
+// 3-6. Get the null with end index.
 int json_getNull(const char * input_string, const int input_string_startIndex, int * output_endIndex) {
     // check input arguments
     if (input_string == NULL) {
@@ -759,101 +1034,11 @@ int json_getNull(const char * input_string, const int input_string_startIndex, i
 }
 
 
-
-/* Internal Function */
-
-int json_getObjectInShallow(const char * input_string, const int input_string_startIndex, int * output_endIndex) {
-    // check input arguments
-    if (input_string == NULL) {
-        printf("%s: input_string should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (input_string_startIndex < 0) {
-        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
-        return -1;
-    }
-
-    if (output_endIndex == NULL) {
-        printf("%s: output_endIndex should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (input_string[input_string_startIndex] == '{') {
-
-        int i, stack = 1;
-        for (i = input_string_startIndex + 1; input_string[i] != '\0'; i++) {
-
-            // left curly bracket
-            if (input_string[i] == '{') {
-                stack++;
-                continue;
-            }
-
-            // right curly bracket
-            if (input_string[i] == '}') {
-                stack--;
-
-                if (stack == 0) {
-                    *output_endIndex = i;
-                    return 0;
-                }
-            }
-        }
-    }
-
-    *output_endIndex = -1;
-    return -1;
-}
-
-int json_getArrayInShallow(const char * input_string, const int input_string_startIndex, int * output_endIndex) {
-    // check input arguments
-    if (input_string == NULL) {
-        printf("%s: input_string should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (input_string_startIndex < 0) {
-        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
-        return -1;
-    }
-
-    if (output_endIndex == NULL) {
-        printf("%s: output_endIndex should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (input_string[input_string_startIndex] == '[') {
-
-        int i, stack = 1;
-        for (i = input_string_startIndex + 1; input_string[i] != '\0'; i++) {
-
-            // left square bracket
-            if (input_string[i] == '[') {
-                stack++;
-                continue;
-            }
-
-            // right square bracket
-            if (input_string[i] == ']') {
-                stack--;
-
-                if (stack == 0) {
-                    *output_endIndex = i;
-                    return 0;
-                }
-            }
-        }
-    }
-
-    *output_endIndex = -1;
-    return -1;
-}
-
-int json_util_getNextCharacter(const char * input_string, int * index) {
+// 4-1. get next character without blank
+int json_util_getNextCharacter(const char * string, int * index) {
     // check arguments
-    if (input_string == NULL) {
-        printf("%s: input_string should not be NULL\n", __func__);
+    if (string == NULL) {
+        printf("%s: string should not be NULL\n", __func__);
         return -1;
     }
 
@@ -867,8 +1052,8 @@ int json_util_getNextCharacter(const char * input_string, int * index) {
         return -1;
     }
 
-    while (!isprint(input_string[*index]) || isspace(input_string[*index])) {
-        if (input_string[*index] == '\0') {
+    while (!isprint(string[*index]) || isspace(string[*index])) {
+        if (string[*index] == '\0') {
             // it's the end of the string
             return -1;
         }
@@ -878,6 +1063,7 @@ int json_util_getNextCharacter(const char * input_string, int * index) {
     return 0;
 }
 
+// 4-2. print substring
 int json_util_printSubstring(const char * string, const int startIndex, const int endIndex) {
     if (string == NULL) {
         printf("%s: string should not be NULL\n", __func__);
@@ -901,6 +1087,7 @@ int json_util_printSubstring(const char * string, const int startIndex, const in
     return 0;
 }
 
+// 4-3. string compare
 int json_util_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex) {
     const char DEBUG = 0;
 
@@ -963,178 +1150,6 @@ int json_util_stringCompare(const char * s1, const int s1_startIndex, const int 
         printf("\n   s2[%d..%d] = ", s2_startIndex, s2_endIndex);
         json_util_printSubstring(s2, s2_startIndex, s2_endIndex);
         puts("\n");
-    }
-    return 0;
-}
-
-int json_getKeyValuePair(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
-    // check arguments
-    if (input_string == NULL) {
-        printf("%s: input_string should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (input_string_startIndex < 0) {
-        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
-        return -1;
-    }
-
-    if (output_key_startIndex == NULL) {
-        printf("%s: output_key_startIndex should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (output_key_endIndex == NULL) {
-        printf("%s: output_key_endIndex should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (output_value_startIndex == NULL) {
-        printf("%s: output_value_startIndex should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (output_value_endIndex == NULL) {
-        printf("%s: output_value_endIndex should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (output_value_jsonType == NULL) {
-        printf("%s: output_value_jsonType should not be NULL\n", __func__);
-        return -1;
-    }
-
-    // set output parameters to default -1
-    *output_key_startIndex   = -1;
-    *output_key_endIndex     = -1;
-    *output_value_startIndex = -1;
-    *output_value_endIndex   = -1;
-    *output_value_jsonType   = -1;
-
-    int i = input_string_startIndex;
-
-    // filter the blank, util find the next character
-    if (json_util_getNextCharacter(input_string, &i) != 0) {
-        return -1;
-    }
-
-    // 1. get key success
-    int keyStartIndex = i;
-    int keyEndIndex;
-    if (json_getString(input_string, keyStartIndex, &keyEndIndex) != 0) {
-        return -1;
-    }
-
-    // move to the index behind the key
-    i = keyEndIndex + 1;
-
-    // filter the blank, util find the next character
-    if (json_util_getNextCharacter(input_string, &i) != 0) {
-        return -1;
-    }
-
-    // 2. find the colon
-    if (input_string[i] != ':') {
-        printf("%s: the character at %d (%c 0x%02x) should be colon (:)\n", __func__, i, input_string[i], input_string[i]);
-        return -1;
-    }
-    i++;
-
-    // filter the blank, util find the next character
-    if (json_util_getNextCharacter(input_string, &i) != 0) {
-        return -1;
-    }
-
-    // 3. get value
-    int valueStartIndex = i;
-    int valueEndIndex;
-    int valueJsonType;
-    if (json_getValue(input_string, valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
-        return -1;
-    }
-
-    *output_key_startIndex   = keyStartIndex;
-    *output_key_endIndex     = keyEndIndex;
-    *output_value_startIndex = valueStartIndex;
-    *output_value_endIndex   = valueEndIndex;
-    *output_value_jsonType   = valueJsonType;
-    return 0;
-}
-
-int json_getKey(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_key_jsonType) {
-    const char DEBUG = 0;
-
-    // check arguments
-    if (input_string == NULL) {
-        printf("%s: input_string should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (input_string_startIndex < 0) {
-        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
-        return -1;
-    }
-
-    if (output_key_startIndex == NULL) {
-        printf("%s: output_key_startIndex should not be NULL\n", __func__);
-        return -1;
-    }
-
-    if (output_key_endIndex == NULL) {
-        printf("%s: output_key_endIndex should not be NULL\n", __func__);
-        return -1;
-    }
-
-    *output_key_startIndex = -1;
-    *output_key_endIndex   = -1;
-    *output_key_jsonType   = -1;
-
-    int endIndex;
-    if (json_getArrayInShallow(input_string, input_string_startIndex, &endIndex) != 0) {
-        return -1;
-    }
-
-    int keyStartIndex = input_string_startIndex + 1;
-    int keyEndIndex   = endIndex - 1;
-
-    // check the key length
-    if (keyEndIndex < keyStartIndex) {
-        if (DEBUG) {
-            printf("%s: the key is empty\n", __func__);
-        }
-        return -1;
-    }
-
-    // 1. string key
-    if (json_getString(input_string, input_string_startIndex + 1, &endIndex) == 0 && keyEndIndex == endIndex) {
-        *output_key_startIndex = keyStartIndex;
-        *output_key_endIndex   = keyEndIndex;
-        *output_key_jsonType   = JSON_TYPE_STRING;
-
-        if (DEBUG) {
-            printf("%s: ", __func__);
-            json_util_printSubstring(input_string, *output_key_startIndex, *output_key_endIndex);
-            printf(" (%s)\n", json_type_toString(*output_key_jsonType));
-        }
-        return 0;
-    }
-
-    // 2. number key
-    int i;
-    for (i = keyStartIndex; i <= keyEndIndex; i++) {
-        if (!isdigit(input_string[i])) {
-            return -1;
-        }
-    }
-
-    *output_key_startIndex = keyStartIndex;
-    *output_key_endIndex   = keyEndIndex;
-    *output_key_jsonType   = JSON_TYPE_NUMBER;
-
-    if (DEBUG) {
-        printf("%s: ", __func__);
-        json_util_printSubstring(input_string, *output_key_startIndex, *output_key_endIndex);
-        printf(" (%s)\n", json_type_toString(*output_key_jsonType));
     }
     return 0;
 }
