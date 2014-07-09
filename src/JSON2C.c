@@ -106,7 +106,7 @@ int json_getValueByJS(const char * input_string, const int input_startIndex, con
                 position = position * 10 + (input_keys[j] - 48);
             }
 
-            if (json_getArrayValueByPosition(input_string, i, position, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
+            if (json_array_getValueByPosition(input_string, i, position, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
                 if (DEBUG) {
                     printf("%s: ", __func__);
                     utils_printSubstring(input_keys, keyStartIndex, keyEndIndex);
@@ -349,7 +349,7 @@ end_of_object:
 }
 
 // Get array value by position with value start & end index and JSON type.
-int json_getArrayValueByPosition(const char * input_string, const int input_startIndex, const int input_position, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType) {
+int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
     // check input arguments
@@ -358,37 +358,37 @@ int json_getArrayValueByPosition(const char * input_string, const int input_star
         return -1;
     }
 
-    if (input_startIndex < 0) {
-        printf("%s: input_startIndex (%d) should not be negative\n", __func__, input_startIndex);
+    if (input_string_startIndex < 0) {
+        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
         return -1;
     }
 
-    if (input_position < 0) {
-        printf("%s: input_position (%d) should not be negative\n", __func__, input_position);
+    if (input_array_position < 0) {
+        printf("%s: input_array_position (%d) should not be negative\n", __func__, input_array_position);
         return -1;
     }
 
-    if (output_valueStartIndex == NULL) {
-        printf("%s: output_valueStartIndex should not be NULL\n", __func__);
+    if (output_value_startIndex == NULL) {
+        printf("%s: output_value_startIndex should not be NULL\n", __func__);
         return -1;
     }
 
-    if (output_valueEndIndex == NULL) {
-        printf("%s: output_valueEndIndex should not be NULL\n", __func__);
+    if (output_value_endIndex == NULL) {
+        printf("%s: output_value_endIndex should not be NULL\n", __func__);
         return -1;
     }
 
-    if (output_valueJsonType == NULL) {
-        printf("%s: output_valueJsonType should not be NULL\n", __func__);
+    if (output_value_jsonType == NULL) {
+        printf("%s: output_value_jsonType should not be NULL\n", __func__);
         return -1;
     }
 
     // set to default
-    *output_valueStartIndex = -1;
-    *output_valueEndIndex = -1;
-    *output_valueJsonType = -1;
+    *output_value_startIndex = -1;
+    *output_value_endIndex = -1;
+    *output_value_jsonType = -1;
 
-    int i = input_startIndex;
+    int i = input_string_startIndex;
 
     // check the first character
     if (input_string[i] != '[') {
@@ -422,11 +422,11 @@ int json_getArrayValueByPosition(const char * input_string, const int input_star
         }
 
         // 1-2. check the position
-        if (input_position == ++position) {
+        if (input_array_position == ++position) {
             // the value is found
-            *output_valueStartIndex = i;
-            *output_valueEndIndex = endIndex;
-            *output_valueJsonType = jsonType;
+            *output_value_startIndex = i;
+            *output_value_endIndex = endIndex;
+            *output_value_jsonType = jsonType;
             return 0;
         }
 
@@ -469,7 +469,7 @@ invalid_character:
 
 end_of_array:
     if (DEBUG) {
-        printf("%s: it's the end of the array (%d), the Value Array[%d] is not found\n", __func__, i, input_position);
+        printf("%s: it's the end of the array (%d), the Value Array[%d] is not found\n", __func__, i, input_array_position);
     }
     return -1;
 }

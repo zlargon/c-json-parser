@@ -15,7 +15,7 @@ void test_getNumber();
 void test_getBoolean();
 void test_getNull();
 void test_getValue();
-void test_getArrayValueByPosition();
+void test_json_array_getValueByPosition();
 void test_getNextCharacterWithoutBlank();
 void test_util_stringComare();
 void test_getKeyValuePair();
@@ -31,7 +31,7 @@ int main() {
     test_getBoolean();
     test_getNull();
     test_getValue();
-    test_getArrayValueByPosition();
+    test_json_array_getValueByPosition();
     test_getNextCharacterWithoutBlank();
     test_util_stringComare();
     test_getKeyValuePair();
@@ -403,8 +403,8 @@ void test_getValue() {
     puts("================================================================================\n");
 }
 
-void test_getArrayValueByPosition() {
-    puts("Test json_getArrayValueByPosition");
+void test_json_array_getValueByPosition() {
+    puts("Test json_array_getValueByPosition");
     puts("================================================================================");
 
     char * str =
@@ -425,7 +425,7 @@ void test_getArrayValueByPosition() {
     int i, valueStartIndex, valueEndIndex, valueJsonType;
     for (i = 0; i < 10; i++) {
 
-        if (json_getArrayValueByPosition(str, 3, i, &valueStartIndex, &valueEndIndex, &valueJsonType) == -1) {
+        if (json_array_getValueByPosition(str, 3, i, &valueStartIndex, &valueEndIndex, &valueJsonType) == -1) {
             printf("Array[%d] is not found\n\n", i);
             continue;
         }
