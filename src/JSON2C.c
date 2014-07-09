@@ -3,8 +3,6 @@
 #include "JSON2C.h"
 
 // Internal Function
-int json_getShallowObject(const char * input_string, const int input_startIndex, int * output_endIndex);
-int json_getShallowArray(const char * input_string, const int input_startIndex, int * output_endIndex);
 int json_getKeyValuePair(const char * input_string, const int input_startIndex, int * output_keyStartIndex, int * output_keyEndIndex, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType);
 int json_getKey(const char * input_string, const int input_startIndex, int * output_keyStartIndex, int * output_keyEndIndex, int * output_keyJsonType);
 int json_getValue(const char * input_string, const int input_startIndex, int * output_endIndex, int * output_jsonType);
@@ -12,7 +10,8 @@ int json_getNumber(const char * input_string, const int input_startIndex, int * 
 int json_getString(const char * input_string, const int input_startIndex, int * output_endIndex);
 int json_getBoolean(const char * input_string, const int input_startIndex, int * output_endIndex);
 int json_getNull(const char * input_string, const int input_startIndex, int * output_endIndex);
-
+int json_getObjectInShallow(const char * input_string, const int input_startIndex, int * output_endIndex);
+int json_getArrayInShallow(const char * input_string, const int input_startIndex, int * output_endIndex);
 
 // Utility Function
 int json_util_printSubstring(const char * string, const int startIndex, const int endIndex);
@@ -211,13 +210,13 @@ int json_getValue(const char * input_string, const int input_startIndex, int * o
     }
 
     // 5. Shallow Object: only find the left and right curly bracket
-    if (json_getShallowObject(input_string, input_startIndex, output_endIndex) == 0) {
+    if (json_getObjectInShallow(input_string, input_startIndex, output_endIndex) == 0) {
         *output_jsonType = JSON_TYPE_OBJECT;
         return 0;
     }
 
     // 6. Shallow Array: only find the left and right square bracket
-    if (json_getShallowArray(input_string, input_startIndex, output_endIndex) == 0) {
+    if (json_getArrayInShallow(input_string, input_startIndex, output_endIndex) == 0) {
         *output_jsonType = JSON_TYPE_ARRAY;
         return 0;
     }
@@ -763,7 +762,7 @@ int json_getNull(const char * input_string, const int input_startIndex, int * ou
 
 /* Internal Function */
 
-int json_getShallowObject(const char * input_string, const int input_startIndex, int * output_endIndex) {
+int json_getObjectInShallow(const char * input_string, const int input_startIndex, int * output_endIndex) {
     // check input arguments
     if (input_string == NULL) {
         printf("%s: input_string should not be NULL\n", __func__);
@@ -807,7 +806,7 @@ int json_getShallowObject(const char * input_string, const int input_startIndex,
     return -1;
 }
 
-int json_getShallowArray(const char * input_string, const int input_startIndex, int * output_endIndex) {
+int json_getArrayInShallow(const char * input_string, const int input_startIndex, int * output_endIndex) {
     // check input arguments
     if (input_string == NULL) {
         printf("%s: input_string should not be NULL\n", __func__);
@@ -1091,7 +1090,7 @@ int json_getKey(const char * input_string, const int input_startIndex, int * out
     *output_keyJsonType   = -1;
 
     int endIndex;
-    if (json_getShallowArray(input_string, input_startIndex, &endIndex) != 0) {
+    if (json_getArrayInShallow(input_string, input_startIndex, &endIndex) != 0) {
         return -1;
     }
 
