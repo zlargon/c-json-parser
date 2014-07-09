@@ -79,7 +79,7 @@ int json_getValueByJS(const char * input_string, const int input_startIndex, con
         // 2-1. json object get value by key
         int valueStartIndex, valueEndIndex, valueJsonType;
         if (keyJsonType == JSON_TYPE_STRING) {
-            if (json_getObjectValueByKey(input_string, i, input_keys, keyStartIndex, keyEndIndex, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
+            if (json_object_getValueByKey(input_string, i, input_keys, keyStartIndex, keyEndIndex, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
                 if (DEBUG) {
                     printf("%s: ", __func__);
                     utils_printSubstring(input_keys, keyStartIndex, keyEndIndex);
@@ -213,8 +213,8 @@ int json_getValue(const char * input_string, const int input_startIndex, int * o
     return -1;
 }
 
-// Get object key by name with value start & end index and JSON type.
-int json_getObjectValueByKey(const char * input_string, const int input_startIndex, const char * input_key, const int input_keyStartIndex, const int input_keyEndIndex, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType) {
+// Get value by key with value start & end index and JSON type.
+int json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
     // check input arguments
@@ -223,8 +223,8 @@ int json_getObjectValueByKey(const char * input_string, const int input_startInd
         return -1;
     }
 
-    if (input_startIndex < 0) {
-        printf("%s: input_startIndex (%d) should not be negative\n", __func__, input_startIndex);
+    if (input_string_startIndex < 0) {
+        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
         return -1;
     }
 
@@ -233,37 +233,37 @@ int json_getObjectValueByKey(const char * input_string, const int input_startInd
         return -1;
     }
 
-    if (input_keyStartIndex < 0) {
-        printf("%s: input_keyStartIndex (%d) should not be negative\n", __func__, input_keyStartIndex);
+    if (input_key_startIndex < 0) {
+        printf("%s: input_key_startIndex (%d) should not be negative\n", __func__, input_key_startIndex);
         return -1;
     }
 
-    if (input_keyEndIndex < input_keyStartIndex) {
-        printf("%s: input_keyEndIndex (%d) should greater than input_keyStartIndex (%d)\n", __func__, input_keyEndIndex, input_keyStartIndex);
+    if (input_key_endIndex < input_key_startIndex) {
+        printf("%s: input_key_endIndex (%d) should greater than input_key_startIndex (%d)\n", __func__, input_key_endIndex, input_key_startIndex);
         return -1;
     }
 
-    if (output_valueStartIndex == NULL) {
-        printf("%s: output_valueStartIndex should not be NULL\n", __func__);
+    if (output_value_startIndex == NULL) {
+        printf("%s: output_value_startIndex should not be NULL\n", __func__);
         return -1;
     }
 
-    if (output_valueEndIndex == NULL) {
-        printf("%s: output_valueEndIndex should not be NULL\n", __func__);
+    if (output_value_endIndex == NULL) {
+        printf("%s: output_value_endIndex should not be NULL\n", __func__);
         return -1;
     }
 
-    if (output_valueJsonType == NULL) {
-        printf("%s: output_valueJsonType should not be NULL\n", __func__);
+    if (output_value_jsonType == NULL) {
+        printf("%s: output_value_jsonType should not be NULL\n", __func__);
         return -1;
     }
 
     // set to default
-    *output_valueStartIndex = -1;
-    *output_valueEndIndex   = -1;
-    *output_valueJsonType   = -1;
+    *output_value_startIndex = -1;
+    *output_value_endIndex   = -1;
+    *output_value_jsonType   = -1;
 
-    int i = input_startIndex;
+    int i = input_string_startIndex;
 
     // check the first character
     if (input_string[i] != '{') {
@@ -295,11 +295,11 @@ int json_getObjectValueByKey(const char * input_string, const int input_startInd
         }
 
         // 1-2. check the key (string compare)
-        if (utils_stringCompare(input_key, input_keyStartIndex, input_keyEndIndex, input_string, keyStartIndex, keyEndIndex) == 0) {
+        if (utils_stringCompare(input_key, input_key_startIndex, input_key_endIndex, input_string, keyStartIndex, keyEndIndex) == 0) {
             // the key is found, return the value
-            *output_valueStartIndex = valueStartIndex;
-            *output_valueEndIndex   = valueEndIndex;
-            *output_valueJsonType   = valueJsonType;
+            *output_value_startIndex = valueStartIndex;
+            *output_value_endIndex   = valueEndIndex;
+            *output_value_jsonType   = valueJsonType;
             return 0;
         }
 
@@ -342,7 +342,7 @@ invalid_character:
 end_of_object:
     if (DEBUG) {
         printf("%s: it's the end of the object (%d), ", __func__, i);
-        utils_printSubstring(input_key, input_keyStartIndex, input_keyEndIndex);
+        utils_printSubstring(input_key, input_key_startIndex, input_key_endIndex);
         printf(" is not found\n");
     }
     return -1;

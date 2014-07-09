@@ -19,7 +19,7 @@ void test_getArrayValueByPosition();
 void test_getNextCharacterWithoutBlank();
 void test_util_stringComare();
 void test_getKeyValuePair();
-void test_getObjectValueByKey();
+void test_json_object_getValueByKey();
 void test_getKey();
 void test_getValueByJS();
 
@@ -35,7 +35,7 @@ int main() {
     test_getNextCharacterWithoutBlank();
     test_util_stringComare();
     test_getKeyValuePair();
-    test_getObjectValueByKey();
+    test_json_object_getValueByKey();
     test_getKey();
     test_getValueByJS();
     return EXIT_SUCCESS;
@@ -588,8 +588,8 @@ void test_getKeyValuePair() {
     puts("================================================================================\n");
 }
 
-void test_getObjectValueByKey() {
-    puts("Test json_getObjectValueByKey");
+void test_json_object_getValueByKey() {
+    puts("Test json_object_getValueByKey");
     puts("================================================================================");
 
     const char * fileName = "sample.json";
@@ -615,7 +615,7 @@ void test_getObjectValueByKey() {
     for (i = 0; keys[i] != NULL; i++) {
 
         int valueStartIndex, valueEndIndex, valueJsonType;
-        if (json_getObjectValueByKey(string, 0, keys[i], 0, strlen(keys[i]) - 1, &valueStartIndex, &valueEndIndex, &valueJsonType) == -1) {
+        if (json_object_getValueByKey(string, 0, keys[i], 0, strlen(keys[i]) - 1, &valueStartIndex, &valueEndIndex, &valueJsonType) == -1) {
             printf("%d. %s is not found\n\n", i + 1, keys[i]);
             continue;
         }

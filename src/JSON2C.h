@@ -69,28 +69,25 @@ int json_getValueByJS(const char * input_string, const int input_startIndex, con
 int json_getValue(const char * input_string, const int input_startIndex, int * output_endIndex, int * output_jsonType);
 
 /*
- * Function: json_getObjectValueByKey
+ * Function: json_object_getValueByKey
  *
- * Get object value by key with value start & end index and JSON type.
+ * Get value by key with value start & end index and JSON type.
  *
  * Parameters:
- *  input_string - the character pointer.
- *  input_startIndex - the start index of the string.
- *  input_key - the key of the value.
- *  input_keyStartIndex - the start index of key.
- *  input_keyEndIndex - the end index of key.
- *  output_valueStartIndex - the integer pointer.
- *   -1 - failure
- *  output_valueEndIndex - the integer pointer.
- *   -1 - failure
- *  output_valueJsonType - the integer pointer.
- *   -1 - failure
+ *  input_string             - the character pointer.
+ *  input_string_startIndex  - the start index of the string.
+ *  input_key                - the key of the value.
+ *  input_key_startIndex     - the start index of key.
+ *  input_key_endIndex       - the end index of key.
+ *  output_value_startIndex  - the integer pointer.
+ *  output_value_endIndex    - the integer pointer.
+ *  output_value_jsonType    - the integer pointer.
  *
  * Returns:
  *   0 - success
  *  -1 - failure
  */
-int json_getObjectValueByKey(const char * input_string, const int input_startIndex, const char * input_key, const int input_keyStartIndex, const int input_keyEndIndex, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType);
+int json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 
 /*
  * Function: json_getArrayValueByPosition
