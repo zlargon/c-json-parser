@@ -10,11 +10,11 @@ int printHexArray(const char * array, int startIndex, int length);
 
 /* Test Function */
 void test_json_type_toString();
-void test_getString();
-void test_getNumber();
-void test_getBoolean();
-void test_getNull();
-void test_getValue();
+void test_json_getString();
+void test_json_getNumber();
+void test_json_getBoolean();
+void test_json_getNull();
+void test_json_getValue();
 void test_json_array_getValueByPosition();
 void test_getNextCharacterWithoutBlank();
 void test_util_stringComare();
@@ -26,11 +26,11 @@ void test_getValueByJS();
 /* Main */
 int main() {
     test_json_type_toString();
-    test_getString();
-    test_getNumber();
-    test_getBoolean();
-    test_getNull();
-    test_getValue();
+    test_json_getString();
+    test_json_getNumber();
+    test_json_getBoolean();
+    test_json_getNull();
+    test_json_getValue();
     test_json_array_getValueByPosition();
     test_getNextCharacterWithoutBlank();
     test_util_stringComare();
@@ -124,7 +124,7 @@ void test_json_type_toString() {
     puts("================================================================================\n");
 }
 
-void test_getString() {
+void test_json_getString() {
     puts("Test json_getString");
     puts("================================================================================");
 
@@ -176,7 +176,7 @@ void test_getString() {
     puts("================================================================================\n");
 }
 
-void test_getNumber() {
+void test_json_getNumber() {
     puts("Test json_getNumber");
     puts("================================================================================");
 
@@ -235,7 +235,7 @@ void test_getNumber() {
     puts("================================================================================\n");
 }
 
-void test_getBoolean() {
+void test_json_getBoolean() {
     puts("Test json_getBoolean");
     puts("================================================================================");
 
@@ -272,7 +272,7 @@ void test_getBoolean() {
     puts("================================================================================\n");
 }
 
-void test_getNull() {
+void test_json_getNull() {
     puts("Test json_getNull");
     puts("================================================================================");
 
@@ -305,7 +305,7 @@ void test_getNull() {
     puts("================================================================================\n");
 }
 
-void test_getValue() {
+void test_json_getValue() {
     puts("Test json_getValue");
     puts("================================================================================");
 

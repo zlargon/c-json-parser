@@ -48,27 +48,6 @@ const char * json_type_toString(int type);
 int json_getValueByJS(const char * input_string, const int input_startIndex, const char * input_keys, const int input_keyStartIndex, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType);
 
 /*
- * Function: json_getValue
- *
- * Get the value with end index and JSON type.
- * Find JSON Object and Array in shallow
- * (only get the left and right bracket, but do not check inside)
- *
- * Parameters:
- *  input_string - the character pointer.
- *  input_startIndex - the start index of the string.
- *  output_endIndex - the integer pointer.
- *   -1 - failure
- *  output_jsonType - the integer pointer.
- *   -1 - failure
- *
- * Returns:
- *   0 - success
- *  -1 - failure
- */
-int json_getValue(const char * input_string, const int input_startIndex, int * output_endIndex, int * output_jsonType);
-
-/*
  * Function: json_object_getValueByKey
  *
  * Get value by key with value start & end index and JSON type.
@@ -107,73 +86,5 @@ int json_object_getValueByKey(const char * input_string, const int input_string_
  *  -1 - failure
  */
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
-
-/*
- * Function: json_getNumber
- *
- * Get the number with end index.
- *
- * Parameters:
- *  input_string - the character pointer.
- *  input_startIndex - the start index of the string.
- *  output_endIndex - the integer pointer.
- *   -1 - failure
- *
- * Returns:
- *   0 - success
- *  -1 - failure
- */
-int json_getNumber(const char * input_string, const int input_startIndex, int * output_endIndex);
-
-/*
- * Function: json_getString
- *
- * Get the string with end index.
- *
- * Parameters:
- *  input_string - the character pointer.
- *  input_startIndex - the start index of the string.
- *  output_endIndex - the integer pointer.
- *   -1 - failure
- *
- * Returns:
- *   0 - success
- *  -1 - failure
- */
-int json_getString(const char * input_string, const int input_startIndex, int * output_endIndex);
-
-/*
- * Function: json_getBoolean
- *
- * Get the boolean with end index.
- *
- * Parameters:
- *  input_string - the character pointer.
- *  input_startIndex - the start index of the string.
- *  output_endIndex - the integer pointer.
- *   -1 - failure
- *
- * Returns:
- *   0 - success
- *  -1 - failure
- */
-int json_getBoolean(const char * input_string, const int input_startIndex, int * output_endIndex);
-
-/*
- * Function: json_getNull
- *
- * Get the null with end index.
- *
- * Parameters:
- *  input_string - the character pointer.
- *  input_startIndex - the start index of the string.
- *  output_endIndex - the integer pointer.
- *   -1 - failure
- *
- * Returns:
- *   0 - success
- *  -1 - failure
- */
-int json_getNull(const char * input_string, const int input_startIndex, int * output_endIndex);
 
 #endif

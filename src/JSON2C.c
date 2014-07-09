@@ -8,6 +8,12 @@ int json_getShallowArray(const char * input_string, const int input_startIndex, 
 int json_getNextCharacterWithoutBlank(const char * input_string, int * index);
 int json_getKeyValuePair(const char * input_string, const int input_startIndex, int * output_keyStartIndex, int * output_keyEndIndex, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType);
 int json_getKey(const char * input_string, const int input_startIndex, int * output_keyStartIndex, int * output_keyEndIndex, int * output_keyJsonType);
+int json_getValue(const char * input_string, const int input_startIndex, int * output_endIndex, int * output_jsonType);
+int json_getNumber(const char * input_string, const int input_startIndex, int * output_endIndex);
+int json_getString(const char * input_string, const int input_startIndex, int * output_endIndex);
+int json_getBoolean(const char * input_string, const int input_startIndex, int * output_endIndex);
+int json_getNull(const char * input_string, const int input_startIndex, int * output_endIndex);
+
 
 // Utility Function
 int utils_printSubstring(const char * string, const int startIndex, const int endIndex);
@@ -414,7 +420,7 @@ int json_array_getValueByPosition(const char * input_string, const int input_str
 
         // 1-1. check the value
         int endIndex, jsonType;
-        if (json_getValue(input_string, i, &endIndex, &jsonType) == -1) {
+        if (json_getValue(input_string, i, &endIndex, &jsonType) != 0) {
             if (DEBUG) {
                 printf("%s: invalid JSON Value at %d (%c)\n", __func__, i, input_string[i]);
             }
@@ -1007,7 +1013,7 @@ int json_getKeyValuePair(const char * input_string, const int input_startIndex, 
     // 1. get key success
     int keyStartIndex = i;
     int keyEndIndex;
-    if (json_getString(input_string, keyStartIndex, &keyEndIndex) == -1) {
+    if (json_getString(input_string, keyStartIndex, &keyEndIndex) != 0) {
         return -1;
     }
 
@@ -1035,7 +1041,7 @@ int json_getKeyValuePair(const char * input_string, const int input_startIndex, 
     int valueStartIndex = i;
     int valueEndIndex;
     int valueJsonType;
-    if (json_getValue(input_string, valueStartIndex, &valueEndIndex, &valueJsonType) == -1) {
+    if (json_getValue(input_string, valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
         return -1;
     }
 
