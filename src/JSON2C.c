@@ -35,7 +35,7 @@ const char * json_type_toString(int type) {
 }
 
 // Get the value with start & end index and JSON type.
-int json_getValueByJS(const char * input_string, const int input_startIndex, const char * input_keys, const int input_keyStartIndex, int * output_valueStartIndex, int * output_valueEndIndex, int * output_valueJsonType) {
+int json_getValueByJS(const char * input_string, const int input_string_startIndex, const char * input_keys, const int input_keys_startIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
     // check arguments
@@ -44,33 +44,43 @@ int json_getValueByJS(const char * input_string, const int input_startIndex, con
         return -1;
     }
 
-    if (input_startIndex < 0) {
-        printf("%s: input_startIndex (%d) should not be negative\n", __func__, input_startIndex);
+    if (input_string_startIndex < 0) {
+        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
         return -1;
     }
 
-    if (output_valueStartIndex == NULL) {
-        printf("%s: output_valueStartIndex should not be NULL\n", __func__);
+    if (input_keys == NULL) {
+        printf("%s: input_keys should not be NULL\n", __func__);
         return -1;
     }
 
-    if (output_valueEndIndex == NULL) {
-        printf("%s: output_valueEndIndex should not be NULL\n", __func__);
+    if (input_keys_startIndex < 0) {
+        printf("%s: input_keys_startIndex (%d) should not be negative\n", __func__, input_keys_startIndex);
         return -1;
     }
 
-    if (output_valueJsonType == NULL) {
-        printf("%s: output_valueJsonType should not be NULL\n", __func__);
+    if (output_value_startIndex == NULL) {
+        printf("%s: output_value_startIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_value_endIndex == NULL) {
+        printf("%s: output_value_endIndex should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_value_jsonType == NULL) {
+        printf("%s: output_value_jsonType should not be NULL\n", __func__);
         return -1;
     }
 
     // set output to default
-    *output_valueStartIndex = -1;
-    *output_valueEndIndex   = -1;
-    *output_valueJsonType   = -1;
+    *output_value_startIndex = -1;
+    *output_value_endIndex   = -1;
+    *output_value_jsonType   = -1;
 
-    int i = input_startIndex;
-    int key_i = input_keyStartIndex;
+    int i = input_string_startIndex;
+    int key_i = input_keys_startIndex;
     for (;;) {
         // 1. get key
         int keyStartIndex, keyEndIndex, keyJsonType;
@@ -144,9 +154,9 @@ int json_getValueByJS(const char * input_string, const int input_startIndex, con
                 printf("%s: it's the end of the keys (%d)\n", __func__, key_i);
             }
 
-            *output_valueStartIndex = valueStartIndex;
-            *output_valueEndIndex   = valueEndIndex;
-            *output_valueJsonType   = valueJsonType;
+            *output_value_startIndex = valueStartIndex;
+            *output_value_endIndex   = valueEndIndex;
+            *output_value_jsonType   = valueJsonType;
             return 0;
         }
     }

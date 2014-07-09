@@ -10,7 +10,7 @@ int printHexArray(const char * array, int startIndex, int length);
 
 /* Test Function */
 void test_json_type_toString();
-void test_getValueByJS();
+void test_json_getValueByJS();
 void test_json_object_getValueByKey();
 void test_json_array_getValueByPosition();
 
@@ -39,7 +39,7 @@ int main() {
     test_json_getKeyValuePair();
     test_json_object_getValueByKey();
     test_json_getKey();
-    test_getValueByJS();
+    test_json_getValueByJS();
     return EXIT_SUCCESS;
 }
 
@@ -669,7 +669,7 @@ void test_json_getKey() {
     puts("================================================================================\n");
 }
 
-void test_getValueByJS() {
+void test_json_getValueByJS() {
     puts("Test json_getValueByJS");
     puts("================================================================================");
 
