@@ -91,85 +91,89 @@ int json_getValueByJS(const char * input_string, const int input_string_startInd
 
     int i = input_string_startIndex;
     int key_i = input_keys_startIndex;
-    for (;;) {
-        // 1. get key
-        int keyStartIndex, keyEndIndex, keyJsonType;
-        if (json_getKey(input_keys, key_i, &keyStartIndex, &keyEndIndex, &keyJsonType) != 0) {
+
+    int key_startIndex, key_endIndex, key_jsonType;
+    int value_startIndex, value_endIndex, value_jsonType;
+
+get_value_by_js_loop:
+
+    // 1. get key
+    if (json_getKey(input_keys, key_i, &key_startIndex, &key_endIndex, &key_jsonType) != 0) {
+        if (DEBUG) {
+            printf("%s: get key at %d failure\n", __func__, key_i);
+        }
+        return -1;
+    }
+
+    // 2-1. json object get value by key
+    if (key_jsonType == JSON_TYPE_STRING) {
+        if (json_object_getValueByKey(input_string, i, input_keys, key_startIndex, key_endIndex, &value_startIndex, &value_endIndex, &value_jsonType) != 0) {
             if (DEBUG) {
-                printf("%s: get key at %d failure\n", __func__, key_i);
+                printf("%s: ", __func__);
+                json_util_printSubstring(input_keys, key_startIndex, key_endIndex);
+                printf(" is not found\n");
             }
             return -1;
         }
 
-        // 2-1. json object get value by key
-        int valueStartIndex, valueEndIndex, valueJsonType;
-        if (keyJsonType == JSON_TYPE_STRING) {
-            if (json_object_getValueByKey(input_string, i, input_keys, keyStartIndex, keyEndIndex, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
-                if (DEBUG) {
-                    printf("%s: ", __func__);
-                    json_util_printSubstring(input_keys, keyStartIndex, keyEndIndex);
-                    printf(" is not found\n");
-                }
-                return -1;
-            }
-
-            // key is found
-            if (DEBUG) {
-                printf("%s: ", __func__);
-                json_util_printSubstring(input_keys, keyStartIndex, keyEndIndex);
-                printf(" = ");
-                json_util_printSubstring(input_string, valueStartIndex, valueEndIndex);
-                printf(" (%s)\n", json_type_toString(valueJsonType));
-            }
-        }
-
-        // 2-2. json array get value by position
-        else if (keyJsonType == JSON_TYPE_NUMBER) {
-            // convert key string to integer position
-            int j, position = 0;
-            for (j = keyStartIndex; j <= keyEndIndex; j++) {
-                position = position * 10 + (input_keys[j] - 48);
-            }
-
-            if (json_array_getValueByPosition(input_string, i, position, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
-                if (DEBUG) {
-                    printf("%s: ", __func__);
-                    json_util_printSubstring(input_keys, keyStartIndex, keyEndIndex);
-                    printf(" is not found\n");
-                }
-                return -1;
-            }
-
-            // key is found
-            if (DEBUG) {
-                printf("%s: ", __func__);
-                json_util_printSubstring(input_keys, keyStartIndex, keyEndIndex);
-                printf(" = ");
-                json_util_printSubstring(input_string, valueStartIndex, valueEndIndex);
-                printf(" (%s)\n", json_type_toString(valueJsonType));
-            }
-        }
-
-        // 2-3. others, this might be BUG
-        else {
-            printf("%s: [BUG] key type (%s) shoud be a string or integer\n", __func__, json_type_toString(valueJsonType));
-        }
-
-        // 3. move to next key, and next value
-        i = valueStartIndex;
-        key_i = keyEndIndex + 2;
-
-        if (input_keys[key_i] == '\0') {
-            if (DEBUG) {
-                printf("%s: it's the end of the keys (%d)\n", __func__, key_i);
-            }
-
-            *output_value_startIndex = valueStartIndex;
-            *output_value_endIndex   = valueEndIndex;
-            *output_value_jsonType   = valueJsonType;
-            return 0;
+        // key is found
+        if (DEBUG) {
+            printf("%s: ", __func__);
+            json_util_printSubstring(input_keys, key_startIndex, key_endIndex);
+            printf(" = ");
+            json_util_printSubstring(input_string, value_startIndex, value_endIndex);
+            printf(" (%s)\n", json_type_toString(value_jsonType));
         }
     }
+
+    // 2-2. json array get value by position
+    else if (key_jsonType == JSON_TYPE_NUMBER) {
+        // convert key string to integer position
+        int j, position = 0;
+        for (j = key_startIndex; j <= key_endIndex; j++) {
+            position = position * 10 + (input_keys[j] - 48);
+        }
+
+        if (json_array_getValueByPosition(input_string, i, position, &value_startIndex, &value_endIndex, &value_jsonType) != 0) {
+            if (DEBUG) {
+                printf("%s: ", __func__);
+                json_util_printSubstring(input_keys, key_startIndex, key_endIndex);
+                printf(" is not found\n");
+            }
+            return -1;
+        }
+
+        // key is found
+        if (DEBUG) {
+            printf("%s: ", __func__);
+            json_util_printSubstring(input_keys, key_startIndex, key_endIndex);
+            printf(" = ");
+            json_util_printSubstring(input_string, value_startIndex, value_endIndex);
+            printf(" (%s)\n", json_type_toString(value_jsonType));
+        }
+    }
+
+    // 2-3. others, this might be BUG
+    else {
+        printf("%s: [BUG] key type (%s) shoud be a string or integer\n", __func__, json_type_toString(value_jsonType));
+    }
+
+    // 3. move to next key, and next value
+    i = value_startIndex;
+    key_i = key_endIndex + 2;
+
+    if (input_keys[key_i] == '\0') {
+        if (DEBUG) {
+            printf("%s: it's the end of the keys (%d)\n", __func__, key_i);
+        }
+
+        *output_value_startIndex = value_startIndex;
+        *output_value_endIndex   = value_endIndex;
+        *output_value_jsonType   = value_jsonType;
+        return 0;
+    }
+
+    goto get_value_by_js_loop;
 }
 
 // 1-3. Get value by key with value start & end index and JSON type.
@@ -243,54 +247,57 @@ int json_object_getValueByKey(const char * input_string, const int input_string_
         goto end_of_object;
     }
 
-    for (;;) {
-        // 1-1. get the key value pair
-        int keyStartIndex, keyEndIndex, valueStartIndex, valueEndIndex, valueJsonType;
-        if (json_getKeyValuePair(input_string, i, &keyStartIndex, &keyEndIndex, &valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
-            if (DEBUG) {
-                printf("%s: invalid JSON Key Value Pair at %d (%c)\n", __func__, i, input_string[i]);
-            }
-            return -1;
+    int key_startIndex, key_endIndex;
+    int value_startIndex, value_endIndex, value_jsonType;
+
+get_key_value_pair_loop:
+    // 1-1. get the key value pair
+    if (json_getKeyValuePair(input_string, i, &key_startIndex, &key_endIndex, &value_startIndex, &value_endIndex, &value_jsonType) != 0) {
+        if (DEBUG) {
+            printf("%s: invalid JSON Key Value Pair at %d (%c)\n", __func__, i, input_string[i]);
         }
-
-        // 1-2. check the key (string compare)
-        if (json_util_stringCompare(input_key, input_key_startIndex, input_key_endIndex, input_string, keyStartIndex, keyEndIndex) == 0) {
-            // the key is found, return the value
-            *output_value_startIndex = valueStartIndex;
-            *output_value_endIndex   = valueEndIndex;
-            *output_value_jsonType   = valueJsonType;
-            return 0;
-        }
-
-        // 1-3. move to the index behind the value
-        i = valueEndIndex + 1;
-
-        // filter the blank, util find the next character
-        if (json_util_getNextCharacter(input_string, &i) != 0) {
-            goto invalid_character;
-        }
-
-        // 2. check the character after the VALUE
-        switch (input_string[i]) {
-            // 2-1. check right square bracket
-            case '}':
-                goto end_of_object;
-
-            // 2-2. find comma behind the value
-            case ',':
-                i++;
-                break;
-
-            // 2-3. is not right square bracket or comma
-            default:
-                goto invalid_character;
-        }
-
-        // filter the blank, util find the next character
-        if (json_util_getNextCharacter(input_string, &i) != 0) {
-            goto invalid_character;
-        }
+        return -1;
     }
+
+    // 1-2. check the key (string compare)
+    if (json_util_stringCompare(input_key, input_key_startIndex, input_key_endIndex, input_string, key_startIndex, key_endIndex) == 0) {
+        // the key is found, return the value
+        *output_value_startIndex = value_startIndex;
+        *output_value_endIndex   = value_endIndex;
+        *output_value_jsonType   = value_jsonType;
+        return 0;
+    }
+
+    // 1-3. move to the index behind the value
+    i = value_endIndex + 1;
+
+    // filter the blank, util find the next character
+    if (json_util_getNextCharacter(input_string, &i) != 0) {
+        goto invalid_character;
+    }
+
+    // 2. check the character after the VALUE
+    switch (input_string[i]) {
+        // 2-1. check right square bracket
+        case '}':
+            goto end_of_object;
+
+        // 2-2. find comma behind the value
+        case ',':
+            i++;
+            break;
+
+        // 2-3. is not right square bracket or comma
+        default:
+            goto invalid_character;
+    }
+
+    // filter the blank, util find the next character
+    if (json_util_getNextCharacter(input_string, &i) != 0) {
+        goto invalid_character;
+    }
+
+    goto get_key_value_pair_loop;
 
 invalid_character:
     if (DEBUG) {
@@ -369,10 +376,10 @@ int json_array_getValueByPosition(const char * input_string, const int input_str
     }
 
     int position = -1;
-    for (;;) {
+    int endIndex, jsonType;
 
+get_value_by_position_loop:
         // 1-1. check the value
-        int endIndex, jsonType;
         if (json_getValue(input_string, i, &endIndex, &jsonType) != 0) {
             if (DEBUG) {
                 printf("%s: invalid JSON Value at %d (%c)\n", __func__, i, input_string[i]);
@@ -418,7 +425,8 @@ int json_array_getValueByPosition(const char * input_string, const int input_str
         if (json_util_getNextCharacter(input_string, &i) != 0) {
             goto invalid_character;
         }
-    }
+
+    goto get_value_by_position_loop;
 
 invalid_character:
     if (DEBUG) {
@@ -500,14 +508,14 @@ int json_getKeyValuePair(const char * input_string, const int input_string_start
     }
 
     // 1. get key success
-    int keyStartIndex = i;
-    int keyEndIndex;
-    if (json_getString(input_string, keyStartIndex, &keyEndIndex) != 0) {
+    int key_startIndex = i;
+    int key_endIndex;
+    if (json_getString(input_string, key_startIndex, &key_endIndex) != 0) {
         return -1;
     }
 
     // move to the index behind the key
-    i = keyEndIndex + 1;
+    i = key_endIndex + 1;
 
     // filter the blank, util find the next character
     if (json_util_getNextCharacter(input_string, &i) != 0) {
@@ -527,18 +535,18 @@ int json_getKeyValuePair(const char * input_string, const int input_string_start
     }
 
     // 3. get value
-    int valueStartIndex = i;
-    int valueEndIndex;
-    int valueJsonType;
-    if (json_getValue(input_string, valueStartIndex, &valueEndIndex, &valueJsonType) != 0) {
+    int value_startIndex = i;
+    int value_endIndex;
+    int value_jsonType;
+    if (json_getValue(input_string, value_startIndex, &value_endIndex, &value_jsonType) != 0) {
         return -1;
     }
 
-    *output_key_startIndex   = keyStartIndex;
-    *output_key_endIndex     = keyEndIndex;
-    *output_value_startIndex = valueStartIndex;
-    *output_value_endIndex   = valueEndIndex;
-    *output_value_jsonType   = valueJsonType;
+    *output_key_startIndex   = key_startIndex;
+    *output_key_endIndex     = key_endIndex;
+    *output_value_startIndex = value_startIndex;
+    *output_value_endIndex   = value_endIndex;
+    *output_value_jsonType   = value_jsonType;
     return 0;
 }
 
@@ -576,11 +584,11 @@ int json_getKey(const char * input_string, const int input_string_startIndex, in
         return -1;
     }
 
-    int keyStartIndex = input_string_startIndex + 1;
-    int keyEndIndex   = endIndex - 1;
+    int key_startIndex = input_string_startIndex + 1;
+    int key_endIndex   = endIndex - 1;
 
     // check the key length
-    if (keyEndIndex < keyStartIndex) {
+    if (key_endIndex < key_startIndex) {
         if (DEBUG) {
             printf("%s: the key is empty\n", __func__);
         }
@@ -588,9 +596,9 @@ int json_getKey(const char * input_string, const int input_string_startIndex, in
     }
 
     // 1. string key
-    if (json_getString(input_string, input_string_startIndex + 1, &endIndex) == 0 && keyEndIndex == endIndex) {
-        *output_key_startIndex = keyStartIndex;
-        *output_key_endIndex   = keyEndIndex;
+    if (json_getString(input_string, input_string_startIndex + 1, &endIndex) == 0 && key_endIndex == endIndex) {
+        *output_key_startIndex = key_startIndex;
+        *output_key_endIndex   = key_endIndex;
         *output_key_jsonType   = JSON_TYPE_STRING;
 
         if (DEBUG) {
@@ -603,14 +611,14 @@ int json_getKey(const char * input_string, const int input_string_startIndex, in
 
     // 2. number key
     int i;
-    for (i = keyStartIndex; i <= keyEndIndex; i++) {
+    for (i = key_startIndex; i <= key_endIndex; i++) {
         if (!isdigit(input_string[i])) {
             return -1;
         }
     }
 
-    *output_key_startIndex = keyStartIndex;
-    *output_key_endIndex   = keyEndIndex;
+    *output_key_startIndex = key_startIndex;
+    *output_key_endIndex   = key_endIndex;
     *output_key_jsonType   = JSON_TYPE_NUMBER;
 
     if (DEBUG) {
@@ -910,69 +918,71 @@ int json_getString(const char * input_string, const int input_string_startIndex,
     }
     i++;
 
-    for (;;) {
-        // 1. check quotation mark
-        if (input_string[i] == '\"') {
-            *output_endIndex = i;
-            return 0;
-        }
+get_string_loop:
 
-        // 2. check control character
-        if (iscntrl(input_string[i])) {
-            if (input_string[i] == '\0') {
-                if (DEBUG) {
-                    printf("%s: is the end of string at %d\n", __func__, i);
-                }
-            } else {
-                if (DEBUG) {
-                    printf("%s: invalid control character at %d (0x%02x)\n", __func__, i, input_string[i]);
-                }
-            }
-            return -1;
-        }
-
-        // 3. check reverse solidus
-        if (input_string[i] == '\\') {
-            i++;
-
-            // check the characters behind the reverse solidus
-            switch (input_string[i]) {
-                case '\"':  // quotation mark
-                case '\\':  // reverse solidus
-                case '/':   // solidus
-                case 'b':   // backspace
-                case 'f':   // form feed
-                case 'n':   // line feed
-                case 'r':   // carriage return
-                case 't':   // character tabulation
-                    break;
-
-                // Unicode
-                case 'u': {
-                    // check 4 hexadecimal digits behind \u
-                    int j;
-                    for (j = 0; j < 4; j++) {
-                        if (!isxdigit(input_string[++i])) {
-                            if (DEBUG) {
-                                printf("%s: non-hexadecimal digit character behind \\u at %d (%c 0x%02x)\n", __func__, i, input_string[i], input_string[i]);
-                            }
-                            return -1;
-                        }
-                    }
-                    break;
-                }
-
-                default:
-                    if (DEBUG) {
-                        printf("%s: invalid character behind the reverse solidus at %d (%c, 0x%02x)\n", __func__, i, input_string[i], input_string[i]);
-                    }
-                    return -1;
-            }
-        }
-
-        // 4. other character
-        i++;
+    // 1. check quotation mark
+    if (input_string[i] == '\"') {
+        *output_endIndex = i;
+        return 0;
     }
+
+    // 2. check control character
+    if (iscntrl(input_string[i])) {
+        if (input_string[i] == '\0') {
+            if (DEBUG) {
+                printf("%s: is the end of string at %d\n", __func__, i);
+            }
+        } else {
+            if (DEBUG) {
+                printf("%s: invalid control character at %d (0x%02x)\n", __func__, i, input_string[i]);
+            }
+        }
+        return -1;
+    }
+
+    // 3. check reverse solidus
+    if (input_string[i] == '\\') {
+        i++;
+
+        // check the characters behind the reverse solidus
+        switch (input_string[i]) {
+            case '\"':  // quotation mark
+            case '\\':  // reverse solidus
+            case '/':   // solidus
+            case 'b':   // backspace
+            case 'f':   // form feed
+            case 'n':   // line feed
+            case 'r':   // carriage return
+            case 't':   // character tabulation
+                break;
+
+            // Unicode
+            case 'u': {
+                // check 4 hexadecimal digits behind \u
+                int j;
+                for (j = 0; j < 4; j++) {
+                    if (!isxdigit(input_string[++i])) {
+                        if (DEBUG) {
+                            printf("%s: non-hexadecimal digit character behind \\u at %d (%c 0x%02x)\n", __func__, i, input_string[i], input_string[i]);
+                        }
+                        return -1;
+                    }
+                }
+                break;
+            }
+
+            default:
+                if (DEBUG) {
+                    printf("%s: invalid character behind the reverse solidus at %d (%c, 0x%02x)\n", __func__, i, input_string[i], input_string[i]);
+                }
+                return -1;
+        }
+    }
+
+    // 4. other character
+    i++;
+
+    goto get_string_loop;
 }
 
 // 3-5. Get the boolean with end index.
