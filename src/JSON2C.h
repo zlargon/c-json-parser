@@ -11,6 +11,18 @@ enum {
     JSON_TYPE_NULL
 };
 
+// JSON Key Value Pair
+typedef struct json_key_value_pair_t {
+    char * key;
+    char * value;
+
+    int   key_type;
+    int value_type;
+
+    struct json_key_value_pair_t * next;
+
+} JSON_Key_Value_Pair;
+
 /*
  * 1. json_type_toString
  *
@@ -83,5 +95,18 @@ int json_object_getValueByKey(const char * input_string, const int input_string_
  *  -1 - failure
  */
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
+
+/*
+ * 5. json_keyValuePair_free
+ *
+ * Free JSON Key Value Pair in recursive.
+ *
+ * Parameters:
+ *  keyValuePair - JSON_Key_Value_Pair pointer.
+ *
+ * Returns:
+ *  always return 0
+ */
+int json_keyValuePair_free(JSON_Key_Value_Pair * keyValuePair);
 
 #endif

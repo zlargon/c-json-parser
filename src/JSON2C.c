@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include "JSON2C.h"
 
@@ -7,6 +8,7 @@ const char * json_type_toString(int type);
 int             json_getValueByJS(const char * input_string, const int input_string_startIndex, const char * input_keys, const int input_keys_startIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 int     json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
+int json_keyValuePair_free(JSON_Key_Value_Pair * keyValuePair);
 
 // 2. Internal Function
 int    json_getKeyValuePair(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
@@ -25,6 +27,7 @@ int            json_getNull(const char * input_string, const int input_string_st
 int json_util_printSubstring(const char * string, const int startIndex, const int endIndex);
 int json_util_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex);
 int json_util_getNextCharacter(const char * string, int * index);
+
 
 // 1-1. JSON type description
 const char * json_type_toString(int type) {
@@ -428,6 +431,20 @@ end_of_array:
         printf("%s: it's the end of the array (%d), the Value Array[%d] is not found\n", __func__, i, input_array_position);
     }
     return -1;
+}
+
+// 1-5. Free JSON Key Value Pair in recursive
+int json_keyValuePair_free(JSON_Key_Value_Pair * keyValuePair) {
+
+    if (keyValuePair == NULL) {
+        return 0;
+    }
+
+    json_keyValuePair_free(keyValuePair->next);
+    free(keyValuePair->key);
+    free(keyValuePair->value);
+    free(keyValuePair);
+    return 0;
 }
 
 // 2-1. Get Key Value Pair
