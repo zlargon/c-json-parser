@@ -24,9 +24,10 @@ int         json_getBoolean(const char * input_string, const int input_string_st
 int            json_getNull(const char * input_string, const int input_string_startIndex, int * output_endIndex);
 
 // 4. Utility Function
-int json_util_printSubstring(const char * string, const int startIndex, const int endIndex);
-int json_util_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex);
 int json_util_getNextCharacter(const char * string, int * index);
+int json_util_printSubstring(const char * string, const int startIndex, const int endIndex);
+int json_util_allocSubstring(const char * string, const int startIndex, const int endIndex, char ** substring);
+int json_util_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex);
 
 
 // 1-1. JSON type description
@@ -1114,7 +1115,47 @@ int json_util_printSubstring(const char * string, const int startIndex, const in
     return 0;
 }
 
-// 4-3. string compare
+// 4-3. allocate substring
+int json_util_allocSubstring(const char * string, const int startIndex, const int endIndex, char ** substring) {
+    if (string == NULL) {
+        printf("%s: string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (startIndex < 0) {
+        printf("%s: startIndex (%d) should not be negative\n", __func__, startIndex);
+        return -1;
+    }
+
+    if (startIndex > endIndex) {
+        printf("%s: endIndex (%d) should greater than startIndex (%d)\n", __func__, endIndex, startIndex);
+        return -1;
+    }
+
+    if (substring == NULL) {
+        printf("%s: substring should not be NULL\n", __func__);
+        return -1;
+    }
+
+    // set default to NULL
+    *substring = NULL;
+
+    char * s = (char *) calloc(endIndex - startIndex + 2, sizeof(char));
+    if (s == NULL) {
+        printf("%s: out of memory\n", __func__);
+        return -1;
+    }
+
+    int i;
+    for (i = 0; i <= endIndex - startIndex; i++) {
+        s[i] = string[startIndex + i];
+    }
+
+    *substring = s;
+    return 0;
+}
+
+// 4-4. string compare
 int json_util_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex) {
     const char DEBUG = 0;
 

@@ -24,6 +24,7 @@ void test_json_getNull();
 
 void test_json_util_stringComare();
 void test_json_util_getNextCharacter();
+void test_json_util_allocSubstring();
 
 /* Main */
 int main() {
@@ -40,6 +41,7 @@ int main() {
     test_json_object_getValueByKey();
     test_json_getKey();
     test_json_getValueByJS();
+    test_json_util_allocSubstring();
     return EXIT_SUCCESS;
 }
 
@@ -709,5 +711,28 @@ void test_json_getValueByJS() {
     }
 
     free(string);
+    puts("================================================================================\n");
+}
+
+void test_json_util_allocSubstring() {
+    puts("Test json_util_allocSubstring");
+    puts("================================================================================");
+
+    const char * str[100] = {
+        "abcdefg",
+        "12345678"
+    };
+
+    int i;
+    for (i = 0; str[i] != NULL; i++) {
+        char * substring;
+        if (json_util_allocSubstring(str[i], 1, 3, &substring) != 0) {
+            puts("json_util_allocSubstring failure");
+            return;
+        }
+        printf("%s\n", substring);
+        free(substring);
+    }
+
     puts("================================================================================\n");
 }
