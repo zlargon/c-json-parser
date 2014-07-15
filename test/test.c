@@ -4,6 +4,8 @@
 #include <errno.h>
 #include "../src/JSON2C.h"
 
+#define stringify(s...) #s
+
 /* Utility Function */
 int convertFileToString(const char * input_fileName, char ** output_stringPointer);
 int printHexArray(const char * array, int startIndex, int length);
@@ -13,6 +15,7 @@ void test_json_type_toString();
 void test_json_getValueByJS();
 void test_json_object_getValueByKey();
 void test_json_array_getValueByPosition();
+void test_json_object_getKeyValuePairList();
 
 void test_json_getKeyValuePair();
 void test_json_getKey();
@@ -42,6 +45,7 @@ int main() {
     test_json_getKey();
     test_json_getValueByJS();
     test_json_util_allocSubstring();
+    test_json_object_getKeyValuePairList();
     return EXIT_SUCCESS;
 }
 
@@ -734,5 +738,66 @@ void test_json_util_allocSubstring() {
         free(substring);
     }
 
+    puts("================================================================================\n");
+}
+
+void test_json_object_getKeyValuePairList() {
+    puts("Test json_object_getKeyValuePairList");
+    puts("================================================================================");
+
+    const char * str[200] = {
+        stringify({"name": "Leon",  "age": 25, "sex": "male"}),
+        stringify({"name": "Peter", "age": 20, "sex": "male"}),
+        stringify([1, 2, 3, 4]),
+        stringify({
+            "orderID": 12345,
+            "shopperName": "John Smith",
+            "shopperEmail": "johnsmith@example.com",
+            "contents": [
+                {
+                    "productID": 34,
+                    "productName": "SuperWidget",
+                    "quantity": 1
+                },
+                {
+                    "productID": 56,
+                    "productName": "WonderWidget",
+                    "quantity": 3
+                }
+            ],
+            "orderCompleted": true
+        }),
+        stringify({
+            "bool": true,
+            "bool": false,
+            "Null": null,
+            "Number": 12e-2,
+            error: [123]
+        })
+    };
+
+    int i;
+    for (i = 0; str[i] != NULL; i++) {
+        printf("\nCase_%d :\n", i + 1);
+        puts("--------------------------------------------------------------------------------");
+        JSON_Key_Value_Pair * root;
+        int size;
+        if (json_object_getKeyValuePairList(str[i], 0, &root, &size) != 0) {
+            puts("json_object_getKeyValuePairList failure");
+            printf("str[%d] = %s\n", i, str[i]);
+            continue;
+        }
+
+        printf("size = %d\n", size);
+
+        int j = 0;
+        JSON_Key_Value_Pair * ptr;
+        for (ptr = root; ptr != NULL; ptr = ptr->next) {
+            printf("%2d. key (%s) = %s\n", ++j, json_type_toString(ptr->key_type), ptr->key);
+            printf("    val (%s) = %s\n", json_type_toString(ptr->value_type), ptr->value);
+        }
+
+        json_keyValuePair_free(root);
+    }
     puts("================================================================================\n");
 }
