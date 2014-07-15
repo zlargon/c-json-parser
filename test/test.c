@@ -28,6 +28,7 @@ void test_json_getNull();
 void test_json_util_stringComare();
 void test_json_util_getNextCharacter();
 void test_json_util_allocSubstring();
+void test_json_util_allocStringByInteger();
 
 /* Main */
 int main() {
@@ -46,6 +47,7 @@ int main() {
     test_json_getValueByJS();
     test_json_util_allocSubstring();
     test_json_object_getKeyValuePairList();
+    test_json_util_allocStringByInteger();
     return EXIT_SUCCESS;
 }
 
@@ -798,6 +800,25 @@ void test_json_object_getKeyValuePairList() {
         }
 
         json_keyValuePair_free(root);
+    }
+    puts("================================================================================\n");
+}
+
+void test_json_util_allocStringByInteger() {
+    puts("Test json_util_allocStringByInteger");
+    puts("================================================================================");
+
+    const int a[] = { -1, 0, 1, 20, 3, 4, 100 };
+
+    int i;
+    for (i = 0; i < 7; i++) {
+        char * string;
+        if (json_util_allocStringByInteger(a[i], &string) != 0) {
+            printf("allocate string by integer (%d) failure\n", a[i]);
+            continue;
+        }
+        printf("%d. %s\n", i + 1, string);
+        free(string);
     }
     puts("================================================================================\n");
 }

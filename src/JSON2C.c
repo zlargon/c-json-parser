@@ -28,6 +28,7 @@ int            json_getNull(const char * input_string, const int input_string_st
 int json_util_getNextCharacter(const char * string, int * index);
 int json_util_printSubstring(const char * string, const int startIndex, const int endIndex);
 int json_util_allocSubstring(const char * string, const int startIndex, const int endIndex, char ** substring);
+int json_util_allocStringByInteger(const int number, char ** string);
 int json_util_stringCompare(const char * s1, const int s1_startIndex, const int s1_endIndex, const char * s2, const int s2_startIndex, const int s2_endIndex);
 
 
@@ -954,7 +955,7 @@ int json_getNumber(const char * input_string, const int input_string_startIndex,
     }
 
 integer_part:
-    // check integer part first digist
+    // check integer part first digit
     if (input_string[i] == '0') {
         i++;
         goto fractional_part;
@@ -962,7 +963,7 @@ integer_part:
 
     if (!isdigit(input_string[i])) {
         if (DEBUG) {
-            printf("%s: the character at %d (%c 0x%02x) should be a digist\n", __func__, i, input_string[i], input_string[i]);
+            printf("%s: the character at %d (%c 0x%02x) should be a digit\n", __func__, i, input_string[i], input_string[i]);
         }
         return -1;
     }
@@ -1356,5 +1357,31 @@ int json_util_stringCompare(const char * s1, const int s1_startIndex, const int 
         json_util_printSubstring(s2, s2_startIndex, s2_endIndex);
         puts("\n");
     }
+    return 0;
+}
+
+// 4-5. allocate string by integer
+int json_util_allocStringByInteger(const int number, char ** string) {
+
+    if (number < 0) {
+        printf("%s: number (%d) should not be negative\n", __func__, number);
+        return -1;
+    }
+
+    int digit = 1;
+    int n = number;
+    while (n / 10 != 0) {
+        n /= 10;
+        digit++;
+    }
+
+    *string = (char *) calloc(digit + 1, sizeof(char));
+    if (*string == NULL) {
+        printf("%s: out of memory\n", __func__);
+        return -1;
+    }
+
+    sprintf(*string, "%d", number);
+
     return 0;
 }
