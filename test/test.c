@@ -16,6 +16,7 @@ void test_json_getValueByJS();
 void test_json_object_getValueByKey();
 void test_json_array_getValueByPosition();
 void test_json_object_getKeyValuePairList();
+void test_json_array_getKeyValuePairList();
 
 void test_json_getKeyValuePair();
 void test_json_getKey();
@@ -48,6 +49,7 @@ int main() {
     test_json_util_allocSubstring();
     test_json_object_getKeyValuePairList();
     test_json_util_allocStringByInteger();
+    test_json_array_getKeyValuePairList();
     return EXIT_SUCCESS;
 }
 
@@ -820,5 +822,54 @@ void test_json_util_allocStringByInteger() {
         printf("%d. %s\n", i + 1, string);
         free(string);
     }
+    puts("================================================================================\n");
+}
+
+void test_json_array_getKeyValuePairList() {
+    puts("Test json_array_getKeyValuePairList");
+    puts("================================================================================");
+
+    const char * str[200] = {
+        stringify([
+            {
+                "productID": 34,
+                "productName": "SuperWidget",
+                "quantity": 1
+            },
+            {
+                "productID": 56,
+                "productName": "WonderWidget",
+                "quantity": 3
+            }
+        ]),
+        stringify([1, 2, 3, 4, 5, 6]),
+        stringify([true, false, null, {"name": "hello"}, [1,2,3,4,5], "hello"]),
+        stringify({"hello": "world"})
+    };
+
+    int i;
+    for (i = 0; str[i] != NULL; i++) {
+        printf("\nCase_%d :\n", i + 1);
+        puts("--------------------------------------------------------------------------------");
+        JSON_Key_Value_Pair * root;
+        int size;
+        if (json_array_getKeyValuePairList(str[i], 0, &root, &size) != 0) {
+            puts("json_array_getKeyValuePairList failure");
+            printf("str[%d] = %s\n", i, str[i]);
+            continue;
+        }
+
+        printf("size = %d\n", size);
+
+        int j = 0;
+        JSON_Key_Value_Pair * ptr;
+        for (ptr = root; ptr != NULL; ptr = ptr->next) {
+            printf("%2d. key (%s) = %s\n", ++j, json_type_toString(ptr->key_type), ptr->key);
+            printf("    val (%s) = %s\n", json_type_toString(ptr->value_type), ptr->value);
+        }
+
+        json_keyValuePair_free(root);
+    }
+
     puts("================================================================================\n");
 }

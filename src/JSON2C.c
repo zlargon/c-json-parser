@@ -12,6 +12,7 @@ int json_keyValuePair_free(JSON_Key_Value_Pair * keyValuePair);
 
 // 2. Internal Function
 int json_object_getKeyValuePairList(const char * input_string, const int input_string_startIndex, JSON_Key_Value_Pair ** output_keyValuePairList, int * output_keyValuePairList_size);
+int  json_array_getKeyValuePairList(const char * input_string, const int input_string_startIndex, JSON_Key_Value_Pair ** output_keyValuePairList, int * output_keyValuePairList_size);
 int            json_getKeyValuePair(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 int                     json_getKey(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_key_jsonType);
 
@@ -594,7 +595,141 @@ invalid_character:
     return -1;
 }
 
-// 2-2. Get Key Value Pair
+// 2-2. Array Get Key Value Pair List
+int  json_array_getKeyValuePairList(const char * input_string, const int input_string_startIndex, JSON_Key_Value_Pair ** output_keyValuePairList, int * output_keyValuePairList_size) {
+    const char DEBUG = 0;
+
+    // check arguments
+    if (input_string == NULL) {
+        printf("%s: input_string should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (input_string_startIndex < 0) {
+        printf("%s: input_string_startIndex (%d) should not be negative\n", __func__, input_string_startIndex);
+        return -1;
+    }
+
+    if (output_keyValuePairList == NULL) {
+        printf("%s: output_keyValuePairList should not be NULL\n", __func__);
+        return -1;
+    }
+
+    if (output_keyValuePairList_size == NULL) {
+        printf("%s: output_keyValuePairList_size should not be NULL\n", __func__);
+        return -1;
+    }
+
+    int i = input_string_startIndex;
+
+    *output_keyValuePairList = NULL;
+    *output_keyValuePairList_size = 0;
+
+    // check the first character
+    if (input_string[i] != '[') {
+        if (DEBUG) {
+            printf("%s: invalid character at %d (%c, 0x%02x), it should be left square bracket\n", __func__, i, input_string[i], input_string[i]);
+        }
+        return -1;
+    }
+    i++;
+
+    // filter the blank, util find the next character
+    if (json_util_getNextCharacter(input_string, &i) != 0) {
+        goto invalid_character;
+    }
+
+    // check right square bracket
+    if (input_string[i] == ']') {
+        return 0;
+    }
+
+    JSON_Key_Value_Pair * last = *output_keyValuePairList;
+    for (;;) {
+        // 1-1. check the value
+        int endIndex, jsonType;
+        if (json_getValue(input_string, i, &endIndex, &jsonType) != 0) {
+            if (DEBUG) {
+                printf("%s: invalid JSON Value at %d (%c)\n", __func__, i, input_string[i]);
+            }
+            return -1;
+        }
+
+        // 2. create JSON_Key_Value_Pair
+        JSON_Key_Value_Pair * pair = malloc(sizeof(JSON_Key_Value_Pair));
+        if (pair == NULL) {
+            printf("%s: out of memory\n", __func__);
+            json_keyValuePair_free(*output_keyValuePairList);
+            return -1;
+        }
+
+        // key & key_type
+        pair->key_type = JSON_TYPE_NUMBER;
+        if (json_util_allocStringByInteger(*output_keyValuePairList_size, &(pair->key)) != 0) {
+            json_keyValuePair_free(*output_keyValuePairList);
+            return -1;
+        }
+
+        // value & value_type
+        pair->value_type = jsonType;
+        if (json_util_allocSubstring(input_string, i, endIndex, &(pair->value)) != 0) {
+            json_keyValuePair_free(*output_keyValuePairList);
+            return -1;
+        }
+
+        // next pointer
+        pair->next = NULL;
+
+        // 3. add to output_keyValuePairList
+        if (last == NULL) {
+            *output_keyValuePairList = pair;
+            last = pair;
+        } else {
+            last->next = pair;
+            last = pair;
+        }
+
+        (*output_keyValuePairList_size)++;
+
+        // 4. move to the index behind the value
+        i = endIndex + 1;
+
+        // filter the blank, util find the next character
+        if (json_util_getNextCharacter(input_string, &i) != 0) {
+            goto invalid_character;
+        }
+
+        // 5. check the character after the VALUE
+        switch (input_string[i]) {
+            // 2-1. check right square bracket
+            case ']':
+                // it's the end of the array
+                return 0;
+
+            // 2-2. find comma behind the value
+            case ',':
+                i++;
+                break;
+
+            // 2-3. is not right square bracket or comma
+            default:
+                goto invalid_character;
+        }
+
+        // filter the blank, util find the next character
+        if (json_util_getNextCharacter(input_string, &i) != 0) {
+            goto invalid_character;
+        }
+    }
+
+invalid_character:
+    if (DEBUG) {
+        printf("%s: invalid character at %d (%c 0x%02x)\n", __func__, i, input_string[i], input_string[i]);
+    }
+    return -1;
+}
+
+// 2-3. Get Key Value Pair
 int json_getKeyValuePair(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     // check arguments
     if (input_string == NULL) {
@@ -689,7 +824,7 @@ int json_getKeyValuePair(const char * input_string, const int input_string_start
     return 0;
 }
 
-// 2-3. Get Key
+// 2-4. Get Key
 int json_getKey(const char * input_string, const int input_string_startIndex, int * output_key_startIndex, int * output_key_endIndex, int * output_key_jsonType) {
     const char DEBUG = 0;
 
