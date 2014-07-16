@@ -5,6 +5,7 @@
 
 // 1. JSON API
 const char * json_type_toString(int type);
+int          json_number_toDouble(const char * input_string, const int input_string_startIndex, double * output_double);
 int             json_getValueByJS(const char * input_string, const int input_string_startIndex, const char * input_keys, const int input_keys_startIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 int     json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
@@ -49,7 +50,25 @@ const char * json_type_toString(int type) {
     }
 }
 
-// 1-2. Get the value with start & end index and JSON type.
+// 1-2. Convert JSON number to double
+int json_number_toDouble(const char * input_string, const int input_string_startIndex, double * output_double) {
+    int endIndex;
+    if (json_getNumber(input_string, input_string_startIndex, &endIndex) != 0) {
+        return -1;
+    }
+
+    char * string;
+    if (json_util_allocSubstring(input_string, input_string_startIndex, endIndex, &string) != 0) {
+        return -1;
+    }
+
+    *output_double = atof(string);
+
+    free(string);
+    return 0;
+}
+
+// 1-3. Get the value with start & end index and JSON type.
 int json_getValueByJS(const char * input_string, const int input_string_startIndex, const char * input_keys, const int input_keys_startIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
@@ -181,7 +200,7 @@ get_value_by_js_loop:
     goto get_value_by_js_loop;
 }
 
-// 1-3. Get value by key with value start & end index and JSON type.
+// 1-4. Get value by key with value start & end index and JSON type.
 int json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
@@ -319,7 +338,7 @@ end_of_object:
     return -1;
 }
 
-// 1-4. Get array value by position with value start & end index and JSON type.
+// 1-5. Get array value by position with value start & end index and JSON type.
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
@@ -446,7 +465,7 @@ end_of_array:
     return -1;
 }
 
-// 1-5. object or array get key value pair list
+// 1-6. object or array get key value pair list
 int json_getKeyValuePairList(const char * input_string, const int input_string_startIndex, JSON_Key_Value_Pair ** output_keyValuePairList, int * output_keyValuePairList_size) {
     if (json_object_getKeyValuePairList(input_string, input_string_startIndex, output_keyValuePairList, output_keyValuePairList_size) == 0) {
         return 0;
@@ -459,7 +478,7 @@ int json_getKeyValuePairList(const char * input_string, const int input_string_s
     return -1;
 }
 
-// 1-6. Free JSON Key Value Pair in recursive
+// 1-7. Free JSON Key Value Pair in recursive
 int json_keyValuePair_free(JSON_Key_Value_Pair * keyValuePair) {
 
     if (keyValuePair == NULL) {

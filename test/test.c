@@ -17,6 +17,7 @@ void test_json_object_getValueByKey();
 void test_json_array_getValueByPosition();
 void test_json_object_getKeyValuePairList();
 void test_json_array_getKeyValuePairList();
+void test_json_number_toDouble();
 
 void test_json_getKeyValuePair();
 void test_json_getKey();
@@ -52,6 +53,7 @@ int main() {
     test_json_util_allocStringByInteger();
     test_json_array_getKeyValuePairList();
     test_json_getKeyValuePairList();
+    test_json_number_toDouble();
     return EXIT_SUCCESS;
 }
 
@@ -946,6 +948,59 @@ void test_json_getKeyValuePairList() {
         }
 
         json_keyValuePair_free(root);
+    }
+
+    puts("================================================================================\n");
+}
+
+void test_json_number_toDouble() {
+
+    puts("Test json_number_toDouble");
+    puts("================================================================================");
+
+    char * str[100] = {
+        "--123",
+        "abc",
+        "123\n",
+        "456",
+        "-",
+        "-abc",
+        "-123",
+        "0",
+        "-0",
+        "0.",
+        ".",
+        "0.0",
+        "1.2.3",
+        "-10.123",
+        "10.e",
+        "10..",
+        "e",
+        "-E",
+        "-0e12",
+        "10.5e00abc",
+        "10.5E+13",
+        "8.5E-2",
+        "8e",
+        "123E-",
+        "456E+",
+        "9.e",
+        "9.e99",
+        "0ee",
+        "",
+        "0.0eabc",
+        "0.0e-abc"
+    };
+
+    int i;
+    for (i = 0; str[i] != NULL; i++) {
+        double number;
+        printf("%d. ", i + 1);
+        if (json_number_toDouble(str[i], 0, &number) != 0) {
+            printf("%s is not number\n", str[i]);
+        } else {
+            printf("%s = %f\n", str[i], number);
+        }
     }
 
     puts("================================================================================\n");

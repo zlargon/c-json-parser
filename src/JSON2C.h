@@ -37,7 +37,23 @@ typedef struct json_key_value_pair_t {
 const char * json_type_toString(int type);
 
 /*
- * 2. json_getValueByJS
+ * 2. json_number_toDouble
+ *
+ * Convert JSON number to double.
+ *
+ * Parameters:
+ *  input_string             - the character pointer.
+ *  input_string_startIndex  - the start index of the string.
+ *  output_double            - the double pointer.
+ *
+ * Returns:
+ *   0 - success
+ *  -1 - failure
+ */
+int json_number_toDouble(const char * input_string, const int input_string_startIndex, double * output_double);
+
+/*
+ * 3. json_getValueByJS
  *
  * Get value by Javascript Syntax with value start & end index and JSON type.
  *
@@ -57,7 +73,7 @@ const char * json_type_toString(int type);
 int json_getValueByJS(const char * input_string, const int input_string_startIndex, const char * input_keys, const int input_keys_startIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 
 /*
- * 3. json_object_getValueByKey
+ * 4. json_object_getValueByKey
  *
  * Get value by key with value start & end index and JSON type.
  *
@@ -78,7 +94,7 @@ int json_getValueByJS(const char * input_string, const int input_string_startInd
 int json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 
 /*
- * 4. json_array_getValueByPosition
+ * 5. json_array_getValueByPosition
  *
  * Get array value by position with value start & end index and JSON type.
  *
@@ -97,7 +113,7 @@ int json_object_getValueByKey(const char * input_string, const int input_string_
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 
 /*
- * 5. json_getKeyValuePairList
+ * 6. json_getKeyValuePairList
  *
  * object or array get key value pair list
  *
@@ -114,7 +130,7 @@ int json_array_getValueByPosition(const char * input_string, const int input_str
 int json_getKeyValuePairList(const char * input_string, const int input_string_startIndex, JSON_Key_Value_Pair ** output_keyValuePairList, int * output_keyValuePairList_size);
 
 /*
- * 6. json_keyValuePair_free
+ * 7. json_keyValuePair_free
  *
  * Free JSON Key Value Pair in recursive.
  *
