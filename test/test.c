@@ -18,6 +18,7 @@ void test_json_array_getValueByPosition();
 void test_json_object_getKeyValuePairList();
 void test_json_array_getKeyValuePairList();
 void test_json_number_toDouble();
+void test_json_string_toString();
 
 void test_json_getKeyValuePair();
 void test_json_getKey();
@@ -54,6 +55,7 @@ int main() {
     test_json_array_getKeyValuePairList();
     test_json_getKeyValuePairList();
     test_json_number_toDouble();
+    test_json_string_toString();
     return EXIT_SUCCESS;
 }
 
@@ -1001,6 +1003,55 @@ void test_json_number_toDouble() {
         } else {
             printf("%s = %f\n", str[i], number);
         }
+    }
+
+    puts("================================================================================\n");
+}
+
+void test_json_string_toString() {
+    puts("Test json_string_toString");
+    puts("================================================================================");
+
+    char * str[100] = {
+        "\"\"ab c\"",
+        "",
+        "\"abc\"",
+        "abc",
+        "\"",
+        "\"abc\"abc",
+        "\"abc\\",
+        "\"abc",
+        "\"\"abc\"",                      /*   "abc               */
+        "\"\\abc\"",                      /*   \abc               */
+        "\"/abc\"",                       /*   /abc               */
+        "\"\\/abc\"",                     /*   \/abc              */
+        "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\"", /*   \"\\\/\b\f\n\r\t   */
+        "\"abc\\u\"",
+        "\"abc\\u1\"",
+        "\"abc\\u12\"",
+        "\"abc\\u123\"",
+        "\"abc\\u1234\"",
+        "\"abc\\u1234",
+        "\"abc\\u1a34\"",
+        "\"abc\\u1A3456\"",
+        "\"abc\\u12s4\"",
+        "\"abc\\u1234\\u1234abc\""
+    };
+
+    int i;
+    for (i = 0; str[i] != NULL; i++) {
+        puts("--------------------------------------------------------------------------------");
+        printf("%d. ", i + 1);
+        char * string;
+        if (json_string_toString(str[i], 0, &string) != 0) {
+            printf("%s is not JSON string\n\n", str[i]);
+            continue;
+        }
+
+        printf("%s is \"%s\" (%lu)\n", str[i], string, strlen(string));
+        printHexArray(string, 0, strlen(string) + 1);
+        puts("");
+        free(string);
     }
 
     puts("================================================================================\n");

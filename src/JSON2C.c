@@ -6,6 +6,7 @@
 // 1. JSON API
 const char * json_type_toString(int type);
 int          json_number_toDouble(const char * input_string, const int input_string_startIndex, double * output_double);
+int          json_string_toString(const char * input_string, const int input_string_startIndex, char ** output_string);
 int             json_getValueByJS(const char * input_string, const int input_string_startIndex, const char * input_keys, const int input_keys_startIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 int     json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
@@ -68,7 +69,99 @@ int json_number_toDouble(const char * input_string, const int input_string_start
     return 0;
 }
 
-// 1-3. Get the value with start & end index and JSON type.
+// 1-3. Convert JSON string to character array
+int json_string_toString(const char * input_string, const int input_string_startIndex, char ** output_string) {
+    const char DEBUG = 0;
+
+    int endIndex;
+    if (json_getString(input_string, input_string_startIndex, &endIndex) != 0) {
+        return -1;
+    }
+
+    // check empty string
+    if (input_string_startIndex + 1 == endIndex) {
+        *output_string = malloc(sizeof(char));
+        if (*output_string == NULL) {
+            printf("%s: out of memory\n", __func__);
+            return -1;
+        }
+
+        **output_string = '\0';
+        return 0;
+    }
+
+    char * string;
+    if (json_util_allocSubstring(input_string, input_string_startIndex + 1, endIndex - 1, &string) != 0) {
+        return -1;
+    }
+
+    int i = 0, j = 0;
+    while (string[i] != '\0') {
+
+        // 1. check reverse solidus
+        if (string[i] != '\\') {
+            goto copy_character;
+        }
+
+        // 2. check the next character
+        if (string[i + 1] == 'u') {
+            if (DEBUG) {
+                printf("%s: This library is not support unicode converting.\n", __func__);
+            }
+            goto copy_character;
+        }
+        i++;
+
+        if (DEBUG) {
+            printf("\\%c = ", string[i]);
+        }
+
+        switch (string[i]) {
+            case 'b':
+                string[i] = '\b';
+                break;
+
+            case 'f':
+                string[i] = '\f';
+                break;
+
+            case 'n':
+                string[i] = '\n';
+                break;
+
+            case 'r':
+                string[i] = '\r';
+                break;
+
+            case 't':
+                string[i] = '\t';
+                break;
+
+            // case '\"':
+            // case '\\':
+            // case '/':
+            default:
+                break;
+        }
+
+        if (DEBUG) {
+            printf("0x%02x\n", string[i]);
+        }
+
+copy_character:
+        string[j++] = string[i++];
+    }
+
+    // allocate output string
+    if (json_util_allocSubstring(string, 0, j - 1, output_string) != 0) {
+        return -1;
+    }
+
+    free(string);
+    return 0;
+}
+
+// 1-4. Get the value with start & end index and JSON type.
 int json_getValueByJS(const char * input_string, const int input_string_startIndex, const char * input_keys, const int input_keys_startIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
@@ -200,7 +293,7 @@ get_value_by_js_loop:
     goto get_value_by_js_loop;
 }
 
-// 1-4. Get value by key with value start & end index and JSON type.
+// 1-5. Get value by key with value start & end index and JSON type.
 int json_object_getValueByKey(const char * input_string, const int input_string_startIndex, const char * input_key, const int input_key_startIndex, const int input_key_endIndex, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
@@ -338,7 +431,7 @@ end_of_object:
     return -1;
 }
 
-// 1-5. Get array value by position with value start & end index and JSON type.
+// 1-6. Get array value by position with value start & end index and JSON type.
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType) {
     const char DEBUG = 0;
 
@@ -465,7 +558,7 @@ end_of_array:
     return -1;
 }
 
-// 1-6. object or array get key value pair list
+// 1-7. object or array get key value pair list
 int json_getKeyValuePairList(const char * input_string, const int input_string_startIndex, JSON_Key_Value_Pair ** output_keyValuePairList, int * output_keyValuePairList_size) {
     if (json_object_getKeyValuePairList(input_string, input_string_startIndex, output_keyValuePairList, output_keyValuePairList_size) == 0) {
         return 0;
@@ -478,7 +571,7 @@ int json_getKeyValuePairList(const char * input_string, const int input_string_s
     return -1;
 }
 
-// 1-7. Free JSON Key Value Pair in recursive
+// 1-8. Free JSON Key Value Pair in recursive
 int json_keyValuePair_free(JSON_Key_Value_Pair * keyValuePair) {
 
     if (keyValuePair == NULL) {
