@@ -30,6 +30,7 @@ void test_json_util_stringComare();
 void test_json_util_getNextCharacter();
 void test_json_util_allocSubstring();
 void test_json_util_allocStringByInteger();
+void test_json_getKeyValuePairList();
 
 /* Main */
 int main() {
@@ -50,6 +51,7 @@ int main() {
     test_json_object_getKeyValuePairList();
     test_json_util_allocStringByInteger();
     test_json_array_getKeyValuePairList();
+    test_json_getKeyValuePairList();
     return EXIT_SUCCESS;
 }
 
@@ -855,6 +857,81 @@ void test_json_array_getKeyValuePairList() {
         int size;
         if (json_array_getKeyValuePairList(str[i], 0, &root, &size) != 0) {
             puts("json_array_getKeyValuePairList failure");
+            printf("str[%d] = %s\n", i, str[i]);
+            continue;
+        }
+
+        printf("size = %d\n", size);
+
+        int j = 0;
+        JSON_Key_Value_Pair * ptr;
+        for (ptr = root; ptr != NULL; ptr = ptr->next) {
+            printf("%2d. key (%s) = %s\n", ++j, json_type_toString(ptr->key_type), ptr->key);
+            printf("    val (%s) = %s\n", json_type_toString(ptr->value_type), ptr->value);
+        }
+
+        json_keyValuePair_free(root);
+    }
+
+    puts("================================================================================\n");
+}
+
+void test_json_getKeyValuePairList() {
+    puts("Test json_getKeyValuePairList");
+    puts("================================================================================");
+
+    const char * str[200] = {
+        stringify([
+            {
+                "productID": 34,
+                "productName": "SuperWidget",
+                "quantity": 1
+            },
+            {
+                "productID": 56,
+                "productName": "WonderWidget",
+                "quantity": 3
+            }
+        ]),
+        stringify([1, 2, 3, 4, 5, 6]),
+        stringify([true, false, null, {"name": "hello"}, [1,2,3,4,5], "hello"]),
+        stringify({"hello": "world"}),
+        stringify({"name": "Leon",  "age": 25, "sex": "male"}),
+        stringify({
+            "orderID": 12345,
+            "shopperName": "John Smith",
+            "shopperEmail": "johnsmith@example.com",
+            "contents": [
+                {
+                    "productID": 34,
+                    "productName": "SuperWidget",
+                    "quantity": 1
+                },
+                {
+                    "productID": 56,
+                    "productName": "WonderWidget",
+                    "quantity": 3
+                }
+            ],
+            "orderCompleted": true
+        }),
+        stringify({
+            "bool": true,
+            "bool": false,
+            "Null": null,
+            "Number": 12e-2,
+            error: [123]
+        })
+    };
+
+    int i;
+    for (i = 0; str[i] != NULL; i++) {
+        printf("\nCase_%d :\n", i + 1);
+        puts("--------------------------------------------------------------------------------");
+        JSON_Key_Value_Pair * root;
+        int size;
+        if (json_getKeyValuePairList(str[i], 0, &root, &size) != 0) {
+            puts("json_getKeyValuePairList failure");
             printf("str[%d] = %s\n", i, str[i]);
             continue;
         }

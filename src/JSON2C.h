@@ -97,7 +97,24 @@ int json_object_getValueByKey(const char * input_string, const int input_string_
 int json_array_getValueByPosition(const char * input_string, const int input_string_startIndex, const int input_array_position, int * output_value_startIndex, int * output_value_endIndex, int * output_value_jsonType);
 
 /*
- * 5. json_keyValuePair_free
+ * 5. json_getKeyValuePairList
+ *
+ * object or array get key value pair list
+ *
+ * Parameters:
+ *  input_string                  - the character pointer.
+ *  input_string_startIndex       - the start index of the string.
+ *  output_keyValuePairList       - the value position in array.
+ *  output_keyValuePairList_size  - the integer pointer.
+ *
+ * Returns:
+ *   0 - success
+ *  -1 - failure
+ */
+int json_getKeyValuePairList(const char * input_string, const int input_string_startIndex, JSON_Key_Value_Pair ** output_keyValuePairList, int * output_keyValuePairList_size);
+
+/*
+ * 6. json_keyValuePair_free
  *
  * Free JSON Key Value Pair in recursive.
  *
